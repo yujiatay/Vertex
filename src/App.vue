@@ -14,11 +14,12 @@
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                Customer Profile
+                <h5>Customer Profile</h5>
+                <switches v-model="profileEnabled" theme="bootstrap" color="primary"></switches>
+                Display on Map
               </li>
               <li class="nav-item">
-                Target Demographics
-                <br/>
+                <h5>Target Demographics</h5>
                 Age Group: 
                 <vue-slider ref="slider" v-bind="demo4" v-model="demo4.value"></vue-slider>
               
@@ -33,11 +34,13 @@
                 <p-check class="p-default p-smooth" color="primary">Others</p-check>
               </li>
               <li class="nav-item">
-                Shop Selector
+                <h5>Shop Selector</h5>
                 <button v-on:click="addShop">Add Shop</button>
               </li>
               <li class="nav-item">
-                Customer Coverage
+                <h5>Customer Coverage</h5>
+                <switches v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
+                Display on Map
               </li>
             </ul>
             </div>
@@ -53,12 +56,14 @@
 <script>
 import L from 'leaflet';
 import vueSlider from 'vue-slider-component';
+import Switches from 'vue-switches';
 import subZones from './assets/subzones.json';
 
 export default {
   name: 'app',
   components: {
     vueSlider,
+    Switches,
   },
   data () {
     return {
@@ -89,6 +94,8 @@ export default {
           '>80',
         ]
       },
+      profileEnabled: false,
+      coverageEnabled: false
     }
   }, 
   mounted () {
