@@ -6,8 +6,9 @@
 </template>
 
 <script>
-import Vue2Leaflet from 'vue2-leaflet';
+// import Vue2Leaflet from 'vue2-leaflet';
 import L from 'leaflet';
+import subZones from '../assets/subzones.json';
 
 export default {
   name: 'map',
@@ -22,6 +23,20 @@ export default {
           attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 15,
       }).addTo(this.map);
+
+      L.geoJSON(subZones, {
+          style: polygonStyle
+      }).addTo(this.map);
+
+      function polygonStyle (feature) {
+          return {
+              fillColor: '#ffffff', 
+              fillOpacity: 0,
+              color: '#909eb5',
+              weight: 2,
+              opacity: 1,
+          };
+      }
   }
 }
 </script>
