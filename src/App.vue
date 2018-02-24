@@ -10,291 +10,461 @@
     </div>
 
     <div id="section" class="container-fluid">
-        <nav class="col-md-3 d-none d-md-block sidebar">
-          <div class="sidebar-sticky">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <h5>Customer Profile</h5>
-                <switches v-model="profileEnabled" theme="bootstrap" color="primary"></switches>
-                Display on Map
-              </li>
-              <li class="nav-item">
-                <h5>Target Demographics</h5>
-                Age Group: 
-                <vue-slider ref="slider" v-bind="demo4" v-model="demo4.value"></vue-slider>
-              
-                Gender:<br/>
-                <p-check class="p-default p-smooth" color="primary">M</p-check>
-                <p-check class="p-default p-smooth" color="primary">F</p-check>
-                <br/>
-                Race:<br/>
-                <p-check class="p-default p-smooth" color="primary">Chinese</p-check>
-                <p-check class="p-default p-smooth" color="primary">Malay</p-check>
-                <p-check class="p-default p-smooth" color="primary">Indian</p-check>
-                <p-check class="p-default p-smooth" color="primary">Others</p-check>
-              </li>
-              <li class="nav-item">
-                <h5>Shop Selector</h5>
-                <button v-on:click="addShop">Add Shop</button>
-              </li>
-              <li class="nav-item">
-                <h5>Customer Coverage</h5>
-                <switches v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
-                Display on Map
-              </li>
-              
-            </ul>
-            </div>
-        </nav>
-      
-        <div id="map" style="width: 100%; height: 100%">
+      <nav class="col-md-3 d-none d-md-block sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <h5>Customer Profile</h5>
+              <switches v-model="profileEnabled" v-on:input="profileHandler" theme="bootstrap" color="primary"></switches>
+              Display on Map
+            </li>
+            <li class="nav-item">
+              <h5>Target Demographics</h5>
+              Age Group:
+              <vue-slider ref="slider" v-bind="demo4" v-model="demo4.value"></vue-slider>
+
+              Gender:<br/>
+              <p-check class="p-default p-smooth" color="primary">M</p-check>
+              <p-check class="p-default p-smooth" color="primary">F</p-check>
+              <br/>
+              Race:<br/>
+              <p-check class="p-default p-smooth" color="primary">Chinese</p-check>
+              <p-check class="p-default p-smooth" color="primary">Malay</p-check>
+              <p-check class="p-default p-smooth" color="primary">Indian</p-check>
+              <p-check class="p-default p-smooth" color="primary">Others</p-check>
+            </li>
+            <li class="nav-item">
+              <h5>Shop Selector</h5>
+              <button v-on:click="addShop">Add Shop</button>
+            </li>
+            <li class="nav-item">
+              <h5>Customer Coverage</h5>
+              <switches v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
+              Display on Map
+            </li>
+
+          </ul>
         </div>
+      </nav>
+
+      <div id="map" style="width: 100%; height: 100%">
       </div>
     </div>
+  </div>
   </div>
 </template>
 
 <script>
-import L from "leaflet";
-import vueSlider from "vue-slider-component";
-import Switches from "vue-switches";
-import subZones from "./assets/subzones.json";
+  import L from "leaflet";
+  import vueSlider from "vue-slider-component";
+  import Switches from "vue-switches";
+  import subZones from "./assets/subzones.json";
+  import staycount from "./assets/processedStayCount";
 
-export default {
-  name: "app",
-  components: {
-    vueSlider,
-    Switches
-  },
-  data() {
-    return {
-      map: false,
-      demo4: {
-        value: ["20", "30"],
-        width: "100%",
-        height: 4,
-        dotSize: 14,
-        min: 1,
-        max: 100,
-        interval: 3,
-        disabled: false,
-        show: true,
-        tooltip: false,
-        piecewise: true,
-        piecewiseLabel: true,
-        data: ["<10", "10", "20", "30", "40", "50", "60", "70", "80", ">80"]
-      },
-      profileEnabled: false,
-      coverageEnabled: false
-    };
-  },
-  mounted() {
-    var basemap = L.tileLayer(
-      "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
-      {
-        attribution:
-          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 15
-      }
-    );
-    this.markers = L.layerGroup();
-
-    this.map = L.map("map", {
-      center: [1.3521, 103.8198],
-      zoom: 12,
-      layers: [basemap, this.markers]
-    });
-
-    L.geoJSON(subZones, {
-      style: polygonStyle
-    }).addTo(this.map);
-
-    var baseMaps = {
-      "Base map": basemap
-    };
-    var overlayMaps = {
-      Shops: this.markers
-    };
-    L.control.layers(baseMaps, overlayMaps).addTo(this.map);
-
-    function polygonStyle(feature) {
-      return {
-        fillColor: "#ffffff",
-        fillOpacity: 0,
-        color: "#909eb5",
-        weight: 1,
-        opacity: 1
-      };
-    }
-  },
-  methods: {
-    addShop() {
-      console.log("listen to click");
-      var self = this;
-      this.map.on("click", function(e) {
-        console.log(e.latlng);
-        var shop = L.marker(e.latlng, { draggable: "true" });
-        self.markers.addLayer(shop);
-        self.map.off("click");
-      });
+  export default {
+    name: "app",
+    components: {
+      vueSlider,
+      Switches
     },
-    customerCoverage: function() {
-      // Get authorization token to query API
-      var consumerKey = "ihOcCn39Jsz8l9E9pvegjfYfKHka";
-      var consumerSecret = "8NZFxflAoDjEU0J_jLuyZfJghZ0a";
-
-      var keySecret = encodeURI(consumerKey + ":" + consumerSecret);
-      var consumerKeySecretB64 = btoa(decodeURI(keySecret));
-
-      var token;
-      //   var tokenResponse = $.ajax({
-      //     type: "POST",
-      //     url: "https://apistore.datasparkanalytics.com:443/token",
-      //     data: { grant_type: "client_credentials" },
-      //     headers: {
-      //       Authorization: "Basic " + consumerKeySecretB64
-      //     },
-      //     success: result => {
-      //       token = result["access_token"];
-      //     }
-      //   });
-      var tokenResponse = this.$http.post(
-        "https://apistore.datasparkanalytics.com:443/token",
-        { grant_type: "client_credentials" },
+    data() {
+      return {
+        map: false,
+        demo4: {
+          value: ["20", "30"],
+          width: "100%",
+          height: 4,
+          dotSize: 14,
+          min: 1,
+          max: 100,
+          interval: 3,
+          disabled: false,
+          show: true,
+          tooltip: false,
+          piecewise: true,
+          piecewiseLabel: true,
+          data: ["<10", "10", "20", "30", "40", "50", "60", "70", "80", ">80"]
+        },
+        profileEnabled: false,
+        coverageEnabled: false
+      };
+    },
+    mounted() {
+      var basemap = L.tileLayer(
+        "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
         {
-          headers: {
-            Authorization: "Basic " + consumerKeySecretB64
-          },
-          emulateJSON: true
+          attribution:
+            '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 15
         }
       );
-      // Assign the access token to token
-      tokenResponse.then(function(value) {
-        token = value.body.access_token;
+      this.markers = L.layerGroup();
+
+      this.map = L.map("map", {
+        center: [1.3521, 103.8198],
+        zoom: 12,
+        layers: [basemap, this.markers]
       });
 
-      // Initialize query fields
-      var queryBody = function(eachDate, destination_subzone_id) {
+      L.geoJSON(subZones, {
+        style: polygonStyle
+      }).addTo(this.map);
+
+      var baseMaps = {
+        "Base map": basemap
+      };
+      var overlayMaps = {
+        Shops: this.markers
+      };
+      L.control.layers(baseMaps, overlayMaps).addTo(this.map);
+
+      function polygonStyle(feature) {
         return {
-          date: eachDate,
-          timeSeriesReference: "destination",
-          location: {
-            locationType: "locationHierarchyLevel",
-            levelType: "destination_subzone",
-            id: destination_subzone_id
-          },
-          queryGranularity: {
-            type: "period",
-            period: "P1D"
-          },
-          filter: {
-            type: "bound",
-            dimension: "agent_year_of_birth",
-            lower: 1980,
-            upper: 2000
-          },
-          dimensionFacets: ["origin_subzone"],
-          aggregations: [
-            {
-              metric: "unique_agents",
-              type: "hyperUnique"
-            }
-          ]
+          fillColor: "#ffffff",
+          fillOpacity: 0,
+          color: "#909eb5",
+          weight: 1,
+          opacity: 1
         };
+      }
+
+      function getStats(subzoneID) {
+        var rawSubzoneStats = staycount[subzoneID];
+        console.log(rawSubzoneStats);
+        var result = {};
+        var sum = 0;
+        for (var i = 0; i < rawSubzoneStats["weekday"].length; i++) {
+          sum += rawSubzoneStats["weekday"][i];
+        }
+        result["average"] = Math.floor(sum / rawSubzoneStats["weekday"].length);
+        // k-greatest traffic
+        // Returns topThree indexes
+        function topThree(arr) {
+          var first = {id: -1, value: 0};
+          var second = {id: -1, value: 0};
+          var third = {id: -1, value: 0};
+          for (var i = 0; i < arr.length; i++) {
+            if (arr[i] > first.value) {
+              first.id = i;
+              first.value = arr[i];
+            } else if (arr[i] > second.value) {
+              second.id = i;
+              second.value = arr[i];
+            } else if (arr[i] > third.value) {
+              third.id = i;
+              third.value = arr[i];
+            }
+          }
+          return [first, second, third];
+        }
+
+        // average daily traffic
+        var bestDays = topThree(rawSubzoneStats["weekday"]).map(function(obj) {
+          switch(obj.id){
+            case 0:
+              return {"MON": obj.value};
+              break;
+            case 1:
+              return {"TUE": obj.value};
+              break;
+            case 2:
+              return {"WED": obj.value};
+              break;
+            case 3:
+              return {"THU": obj.value};
+              break;
+            case 4:
+              return {"FRI": obj.value};
+              break;
+            case 5:
+              return {"SAT": obj.value};
+              break;
+            case 6:
+              return {"SUN": obj.value};
+              break;
+          }
+        });
+        var bestHours = topThree(rawSubzoneStats["daily"]).map(function(obj) {
+          var timeIndex = obj.id;
+          var timeName = "";
+          var result = {};
+          if (timeIndex === 0) {
+            timeName = "12am";
+          } else if (timeIndex <= 11) {
+            timeName = timeIndex + "am";
+          } else if (timeIndex = 12) {
+            timeName = timeIndex  + "pm";
+          } else {
+            timeName = timeIndex  + "pm";
+          }
+          result[timeName] = obj.value;
+          return result;
+        });
+
+        function entryToString(full, current) {
+          return full + "  " + Object.keys(current)[0] + " (" + Math.floor(Object.values(current)[0]) + ")";
+        }
+        console.log(result["bestDay"]);
+        console.log(result["bestHour"]);
+        result["bestDay"] = bestDays.reduce(entryToString, "");
+        result["bestHour"] = bestHours.reduce(entryToString, "");
+
+        return result;
+      }
+
+
+      this.info = L.control();
+
+      this.info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+        this.update();
+        return this._div;
+      };
+      this.info.onRemove = function (map) {
+        console.log(this._div);
+        this._div.remove();
+      };
+      // method that we will use to update the control based on feature properties passed
+      this.info.update = function (subzoneName, subzoneID) {
+        if (subzoneID == undefined) {
+          this._div.innerHTML = '<h4>Subzone Data</h4>' +  'Hover over a subzone';
+        } else {
+          var stats = getStats(subzoneID);
+          this._div.innerHTML = '<h4>Subzone Data</h4>' +
+            '<b>' + subzoneName + '</b><br />' + '<b>Daily Average:</b> ' + stats.average + '<br />' +
+          '<b>Peak Day:</b> ' + stats.bestDay + '<br />' +
+            '<b>Peak Hours:</b> ' + stats.bestHour + '<br />' +
+          '<i>Unit for numbers is unique visitors per day</i> <br/>';
+        }
       };
 
-      // Get current date
-      var currDate = new Date();
-      // Set previous date to the last day of the previous month
-      var prevDate = currDate;
-      prevDate.setDate(0);
-      // Debug print number of days of previous month
-      console.log(prevDate.getDate());
+    },
+    methods: {
+      profileHandler(value) {
+        var self = this;
+        function profileActivated() {
+          function highlightFeature(e){
+            var layer = e.target;
+            layer.setStyle({
+              weight: 5,
+              color: '#777',
+              fillOpacity: 0.7
+            });
+            self.info.update(layer.feature.properties.name, layer.feature.id);
+          }
 
-      var aggregatedResponse = this.$http.post(
-        "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
-        JSON.stringify(
-          queryBody(
-            prevDate.getFullYear() + "-" + prevDate.getMonth() + 1 + "-" + 1,
-            "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
-          )
-        ),
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          emulateJSON: true
+
+          function resetHighlight(e) {
+            self.profileLayer.resetStyle(e.target);
+            // info.update();
+          }
+          function onEachSubzone(feature, layer){
+            layer.on({
+              mouseover: highlightFeature,
+              mouseout: resetHighlight
+            });
+          }
+          self.info.addTo(self.map);
+          self.profileLayer = L.geoJSON(subZones, {
+            style: {
+              fillOpacity: 0,
+              opacity: 0
+            },
+            onEachFeature: onEachSubzone
+          }).addTo(self.map);
         }
-      );
-      setTimeout(1000);
-      console.log(aggregatedResponse);
+        function profileDeactivated(){
+          self.map.removeLayer(self.profileLayer);
+          self.info.remove();
+        }
 
-      // Query API for all the days in the previous month
-      //   for (var i = 2; i <= prevDate.getDate(); i++) {
-      //     // token variable is a valid access token (see Getting Started)
-      //     var queryResponse = this.$http.post(
-      //       "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
-      //       {
-      //         data: JSON.stringify(
-      //           queryBody(
-      //             prevDate.getFullYear() +
-      //               "-" +
-      //               prevDate.getMonth() +
-      //               1 +
-      //               "-" +
-      //               1,
-      //             "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
-      //           )
-      //         )
-      //       },
-      //       {
-      //         headers: {
-      //           Authorization: "Bearer " + token,
-      //           "Content-Type": "application/json"
-      //         },
-      //         emulateJSON: true
-      //       }
-      //     );
-      //     setTimeout(1000);
-      //     queryResponse.forEach(origin => {
-      //       if (
-      //         aggregatedResponse.event.origin_subzone ===
-      //         origin.event.origin_subzone
-      //       ) {
-      //         aggregatedResponse.event.hyperUnique_unique_agents +=
-      //           origin.event.hyperUnique_unique_agents;
-      //       }
-      //     });
-      //   }
+        if(value){
+          profileActivated();
+        } else {
+          profileDeactivated();
+        }
+      },
+      addShop() {
+        console.log("listen to click");
+        var self = this;
+        this.map.on("click", function(e) {
+          console.log(e.latlng);
+          var shop = L.marker(e.latlng, { draggable: "true" });
+          self.markers.addLayer(shop);
+          self.map.off("click");
+        });
+      },
+      customerCoverage: function() {
+        // Get authorization token to query API
+        var consumerKey = "ihOcCn39Jsz8l9E9pvegjfYfKHka";
+        var consumerSecret = "8NZFxflAoDjEU0J_jLuyZfJghZ0a";
+
+        var keySecret = encodeURI(consumerKey + ":" + consumerSecret);
+        var consumerKeySecretB64 = btoa(decodeURI(keySecret));
+
+        var token;
+        //   var tokenResponse = $.ajax({
+        //     type: "POST",
+        //     url: "https://apistore.datasparkanalytics.com:443/token",
+        //     data: { grant_type: "client_credentials" },
+        //     headers: {
+        //       Authorization: "Basic " + consumerKeySecretB64
+        //     },
+        //     success: result => {
+        //       token = result["access_token"];
+        //     }
+        //   });
+        var tokenResponse = this.$http.post(
+          "https://apistore.datasparkanalytics.com:443/token",
+          { grant_type: "client_credentials" },
+          {
+            headers: {
+              Authorization: "Basic " + consumerKeySecretB64
+            },
+            emulateJSON: true
+          }
+        );
+        // Assign the access token to token
+        tokenResponse.then(function(value) {
+          token = value.body.access_token;
+        });
+
+        // Initialize query fields
+        var queryBody = function(eachDate, destination_subzone_id) {
+          return {
+            date: eachDate,
+            timeSeriesReference: "destination",
+            location: {
+              locationType: "locationHierarchyLevel",
+              levelType: "destination_subzone",
+              id: destination_subzone_id
+            },
+            queryGranularity: {
+              type: "period",
+              period: "P1D"
+            },
+            filter: {
+              type: "bound",
+              dimension: "agent_year_of_birth",
+              lower: 1980,
+              upper: 2000
+            },
+            dimensionFacets: ["origin_subzone"],
+            aggregations: [
+              {
+                metric: "unique_agents",
+                type: "hyperUnique"
+              }
+            ]
+          };
+        };
+
+        // Get current date
+        var currDate = new Date();
+        // Set previous date to the last day of the previous month
+        var prevDate = currDate;
+        prevDate.setDate(0);
+        // Debug print number of days of previous month
+        console.log(prevDate.getDate());
+
+        var aggregatedResponse = this.$http.post(
+          "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
+          JSON.stringify(
+            queryBody(
+              prevDate.getFullYear() + "-" + prevDate.getMonth() + 1 + "-" + 1,
+              "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
+            )
+          ),
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+              "Content-Type": "application/json"
+            },
+            emulateJSON: true
+          }
+        );
+        setTimeout(1000);
+        console.log(aggregatedResponse);
+
+        // Query API for all the days in the previous month
+        //   for (var i = 2; i <= prevDate.getDate(); i++) {
+        //     // token variable is a valid access token (see Getting Started)
+        //     var queryResponse = this.$http.post(
+        //       "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
+        //       {
+        //         data: JSON.stringify(
+        //           queryBody(
+        //             prevDate.getFullYear() +
+        //               "-" +
+        //               prevDate.getMonth() +
+        //               1 +
+        //               "-" +
+        //               1,
+        //             "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
+        //           )
+        //         )
+        //       },
+        //       {
+        //         headers: {
+        //           Authorization: "Bearer " + token,
+        //           "Content-Type": "application/json"
+        //         },
+        //         emulateJSON: true
+        //       }
+        //     );
+        //     setTimeout(1000);
+        //     queryResponse.forEach(origin => {
+        //       if (
+        //         aggregatedResponse.event.origin_subzone ===
+        //         origin.event.origin_subzone
+        //       ) {
+        //         aggregatedResponse.event.hyperUnique_unique_agents +=
+        //           origin.event.hyperUnique_unique_agents;
+        //       }
+        //     });
+        //   }
+
+
+      }
     }
-  }
-};
+  };
 </script>
 
 <style>
-@import "../node_modules/leaflet/dist/leaflet.css";
-/* @import '../node_modules/pretty-checkbox/src/pretty-checkbox.scss'; */
+  @import "../node_modules/leaflet/dist/leaflet.css";
+  /* @import '../node_modules/pretty-checkbox/src/pretty-checkbox.scss'; */
 
-#section {
-  display: flex;
-  flex-flow: row;
-  /* top: 50px; */
-  width: 100%;
-  height: 90vh;
-  margin: 0;
-  padding: 0;
-}
+  #section {
+    display: flex;
+    flex-flow: row;
+    /* top: 50px; */
+    width: 100%;
+    height: 90vh;
+    margin: 0;
+    padding: 0;
+  }
 
-#full_div {
-  /* position: absolute; */
-  flex: 1;
-  /* overflow: auto; */
-  /* top: 55px;
-  right: 0;
-  left: 300px;
-  bottom: 0; */
-  /* padding-left: 8px; */
-  /* border-left: 1px solid #ccc; */
-}
+  #full_div {
+    /* position: absolute; */
+    flex: 1;
+    /* overflow: auto; */
+    /* top: 55px;
+    right: 0;
+    left: 300px;
+    bottom: 0; */
+    /* padding-left: 8px; */
+    /* border-left: 1px solid #ccc; */
+  }
+  .info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+  }
+  .info h4 {
+    margin: 0 0 5px;
+    color: #777;
+  }
 </style>
