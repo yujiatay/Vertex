@@ -2,6 +2,8 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
+import VueResource from 'vue-resource'
+Vue.use(VueResource);
 import router from './router'
 import L from 'leaflet';
 import PrettyCheckbox from 'pretty-checkbox-vue';
@@ -15,6 +17,7 @@ L.Icon.Default.mergeOptions({
 
 Vue.config.productionTip = false
 Vue.use(PrettyCheckbox)
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
