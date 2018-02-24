@@ -1,31 +1,27 @@
 <template>
   <div>
-    <v-map style="height: 100%" :zoom="zoom" :center="center">
-      <v-tilelayer :url="url" :attribution="attribution"></v-tilelayer>
-      <v-marker :lat-lng="marker"></v-marker>
-    </v-map>
+    <div id="map" style="width: 100%; height: 100%">
+    </div>
   </div>
 </template>
 
 <script>
 import Vue2Leaflet from 'vue2-leaflet';
+import L from 'leaflet';
 
 export default {
   name: 'map',
-  components: {
-    'v-map': Vue2Leaflet.Map,
-    'v-tilelayer' :Vue2Leaflet.TileLayer,
-    'v-marker': Vue2Leaflet.Marker
-  },
   data () {
     return {
-      zoom:12,
-      center: L.latLng(1.3521, 103.8198),
-      url:'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-    //   url:'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-      attribution:'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      marker: L.latLng(1.3521, 103.8198),
+        map: false
     }
+  },
+  mounted () {
+      this.map = L.map('map').setView([1.3521, 103.8198], 12);
+      L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 15,
+      }).addTo(this.map);
   }
 }
 </script>
