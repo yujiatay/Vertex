@@ -1,0 +1,933 @@
+{
+	"QTSZ10":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 2,
+		"race": "MALAY"
+	},
+	"TNSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 6,
+		"race": "EURASIAN"
+	},
+	"BMSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "EURASIAN"
+	},
+	"RVSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 1,
+		"race": "CHINESE"
+	},
+	"BTSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "OTHERS"
+	},
+	"DTSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 0,
+		"race": "MALAY"
+	},
+	"KLSZ09":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 8,
+		"race": "CHINESE"
+	},
+	"QTSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "EURASIAN"
+	},
+	"RCSZ09":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "MALAY"
+	},
+	"QTSZ11":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 9,
+		"race": "CHINESE"
+	},
+	"NTSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "CHINESE"
+	},
+	"BMSZ14":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 8,
+		"race": "CHINESE"
+	},
+	"QTSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "MALAY"
+	},
+	"QTSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"BMSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "EURASIAN"
+	},
+	"DTSZ08":
+	{
+		"uniqueAgents": 95,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "OTHERS"
+	},
+	"NTSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 8,
+		"race": "CHINESE"
+	},
+	"KLSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 8,
+		"race": "MALAY"
+	},
+	"KLSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 8,
+		"race": "INDIAN"
+	},
+	"TPSZ02":
+	{
+		"uniqueAgents": 122,
+		"gender": "F",
+		"ageGroup": 6,
+		"race": "CHINESE"
+	},
+	"GLSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 8,
+		"race": "INDIAN"
+	},
+	"GLSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "EURASIAN"
+	},
+	"MUSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "INDIAN"
+	},
+	"RCSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 8,
+		"race": "CHINESE"
+	},
+	"DTSZ11":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "OTHERS"
+	},
+	"QTSZ13":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 8,
+		"race": "CHINESE"
+	},
+	"RCSZ05":
+	{
+		"uniqueAgents": 41,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "CHINESE"
+	},
+	"TPSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"BTSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 8,
+		"race": "CHINESE"
+	},
+	"NTSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "MALAY"
+	},
+	"GLSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "OTHERS"
+	},
+	"BMSZ08":
+	{
+		"uniqueAgents": 48,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "CHINESE"
+	},
+	"MUSZ03":
+	{
+		"uniqueAgents": 90,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "CHINESE"
+	},
+	"BSSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "MALAY"
+	},
+	"NTSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "INDIAN"
+	},
+	"MESZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "OTHERS"
+	},
+	"NVSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	},
+	"NTSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "CHINESE"
+	},
+	"TPSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "MALAY"
+	},
+	"NVSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	},
+	"RCSZ10":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "OTHERS"
+	},
+	"TPSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "CHINESE"
+	},
+	"BMSZ12":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	},
+	"MPSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 4,
+		"race": "OTHERS"
+	},
+	"MSSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "MALAY"
+	},
+	"MPSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "CHINESE"
+	},
+	"BSSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "MALAY"
+	},
+	"DTSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "EURASIAN"
+	},
+	"OTSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 2,
+		"race": "MALAY"
+	},
+	"QTSZ09":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 6,
+		"race": "EURASIAN"
+	},
+	"TPSZ08":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 4,
+		"race": "OTHERS"
+	},
+	"NVSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 1,
+		"race": "EURASIAN"
+	},
+	"RCSZ08":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "EURASIAN"
+	},
+	"BMSZ10":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 0,
+		"race": "CHINESE"
+	},
+	"TPSZ12":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 1,
+		"race": "OTHERS"
+	},
+	"BTSZ08":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "MALAY"
+	},
+	"DTSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 2,
+		"race": "INDIAN"
+	},
+	"BSSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "MALAY"
+	},
+	"KLSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "MALAY"
+	},
+	"DTSZ09":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "MALAY"
+	},
+	"QTSZ08":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "EURASIAN"
+	},
+	"BMSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "EURASIAN"
+	},
+	"RVSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "MALAY"
+	},
+	"RVSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "OTHERS"
+	},
+	"ORSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "EURASIAN"
+	},
+	"DTSZ12":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 5,
+		"race": "EURASIAN"
+	},
+	"OTSZ01":
+	{
+		"uniqueAgents": 47,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "OTHERS"
+	},
+	"OTSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 1,
+		"race": "OTHERS"
+	},
+	"TNSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "INDIAN"
+	},
+	"RVSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 9,
+		"race": "CHINESE"
+	},
+	"MPSZ03":
+	{
+		"uniqueAgents": 47,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "CHINESE"
+	},
+	"SVSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "OTHERS"
+	},
+	"KLSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 0,
+		"race": "OTHERS"
+	},
+	"RCSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 2,
+		"race": "CHINESE"
+	},
+	"QTSZ15":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"NTSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "MALAY"
+	},
+	"NVSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 9,
+		"race": "CHINESE"
+	},
+	"TNSZ04":
+	{
+		"uniqueAgents": 48,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "CHINESE"
+	},
+	"QTSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"BMSZ17":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 4,
+		"race": "INDIAN"
+	},
+	"BMSZ09":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 8,
+		"race": "EURASIAN"
+	},
+	"GLSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 1,
+		"race": "INDIAN"
+	},
+	"TPSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "OTHERS"
+	},
+	"SRSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	},
+	"RVSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "INDIAN"
+	},
+	"DTSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 2,
+		"race": "EURASIAN"
+	},
+	"OTSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "MALAY"
+	},
+	"RCSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "CHINESE"
+	},
+	"GLSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 1,
+		"race": "MALAY"
+	},
+	"KLSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 4,
+		"race": "INDIAN"
+	},
+	"BMSZ04":
+	{
+		"uniqueAgents": 59,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "CHINESE"
+	},
+	"BMSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "OTHERS"
+	},
+	"MPSZ02":
+	{
+		"uniqueAgents": 67,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "CHINESE"
+	},
+	"BMSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"SISZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 9,
+		"race": "OTHERS"
+	},
+	"SRSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"BTSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 8,
+		"race": "MALAY"
+	},
+	"QTSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 4,
+		"race": "MALAY"
+	},
+	"BMSZ15":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "EURASIAN"
+	},
+	"TPSZ10":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "CHINESE"
+	},
+	"QTSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 0,
+		"race": "CHINESE"
+	},
+	"KLSZ08":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "MALAY"
+	},
+	"DTSZ06":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 4,
+		"race": "OTHERS"
+	},
+	"RCSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 1,
+		"race": "INDIAN"
+	},
+	"KLSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "MALAY"
+	},
+	"RCSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "EURASIAN"
+	},
+	"TPSZ05":
+	{
+		"uniqueAgents": 68,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "CHINESE"
+	},
+	"BTSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "MALAY"
+	},
+	"MUSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "MALAY"
+	},
+	"DTSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	},
+	"KLSZ04":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "OTHERS"
+	},
+	"BTSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "CHINESE"
+	},
+	"QTSZ14":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 8,
+		"race": "MALAY"
+	},
+	"BMSZ16":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 6,
+		"race": "EURASIAN"
+	},
+	"NVSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 1,
+		"race": "INDIAN"
+	},
+	"TPSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "MALAY"
+	},
+	"TNSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 1,
+		"race": "INDIAN"
+	},
+	"BMSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 1,
+		"race": "OTHERS"
+	},
+	"BTSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "INDIAN"
+	},
+	"ORSZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 6,
+		"race": "INDIAN"
+	},
+	"SRSZ01":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "MALAY"
+	},
+	"DTSZ10":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "MALAY"
+	},
+	"TPSZ11":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 3,
+		"race": "OTHERS"
+	},
+	"BMSZ13":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "EURASIAN"
+	},
+	"ORSZ03":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	},
+	"SISZ02":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "OTHERS"
+	},
+	"QTSZ05":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 5,
+		"race": "EURASIAN"
+	},
+	"TPSZ09":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 6,
+		"race": "MALAY"
+	},
+	"QTSZ12":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 5,
+		"race": "MALAY"
+	},
+	"DTSZ02":
+	{
+		"uniqueAgents": 213,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "CHINESE"
+	},
+	"RCSZ07":
+	{
+		"uniqueAgents": 40,
+		"gender": "M",
+		"ageGroup": 1,
+		"race": "INDIAN"
+	},
+	"BTSZ06":
+	{
+		"uniqueAgents": 63,
+		"gender": "F",
+		"ageGroup": 3,
+		"race": "CHINESE"
+	},
+	"BMSZ11":
+	{
+		"uniqueAgents": 40,
+		"gender": "F",
+		"ageGroup": 7,
+		"race": "INDIAN"
+	}
+}
