@@ -27,6 +27,7 @@
                 <a class="nav-link" href="#">
                   Shop Selector
                 </a>
+                <button v-on:click="addShop">Add Shop</button>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#">
@@ -37,42 +38,82 @@
             </div>
         </nav>
       
-         <component id="full_div" :is="currentView"></component>
+        <div id="map" style="width: 100%; height: 100%">
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// import Vue2Leaflet from 'vue2-leaflet';
-import Simple from './components/Simple';
+import L from 'leaflet';
+import subZones from './assets/subzones.json';
 
 export default {
   name: 'app',
   components: {
-    Simple
   },
   data () {
     return {
-      currentView: 'simple'
+      map: false,
+    }
+  }, 
+  mounted () {
+      var basemap = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 15,
+      });
+      this.markers = L.layerGroup();
+
+      this.map = L.map('map', {
+        center: [1.3521, 103.8198],
+        zoom: 12,
+        layers: [basemap, this.markers]
+      });
+
+
+      L.geoJSON(subZones, {
+          style: polygonStyle
+      }).addTo(this.map);
+
+      var baseMaps = {
+        "Base map": basemap,
+      }
+      var overlayMaps = {
+        "Shops": this.markers,
+      }
+      L.control.layers(baseMaps, overlayMaps).addTo(this.map);
+
+      function polygonStyle (feature) {
+          return {
+              fillColor: '#ffffff', 
+              fillOpacity: 0,
+              color: '#909eb5',
+              weight: 1,
+              opacity: 1,
+          };
+      }
+  },
+  methods: {
+    addShop () {
+      console.log('listen to click')
+      var self = this;
+      this.map.on('click', function(e) {
+        console.log(e.latlng)
+        var shop = L.marker(e.latlng, { draggable: 'true' })
+        self.markers.addLayer(shop);
+        self.map.off('click')
+      })
+    },
+    createMarker (latitude, longitude) {
+      L.marker([latitude, longitude]).addTo(map)
     }
   }
 }
 </script>
 
 <style>
-/* #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-} */
-
 @import "../node_modules/leaflet/dist/leaflet.css";
-
-
 
 #section {
   display: flex;
