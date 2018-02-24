@@ -19,7 +19,7 @@ Vue.config.productionTip = false
 Vue.use(PrettyCheckbox)
 
 /* eslint-disable no-new */
-new Vue({
+window.app = new Vue({
   el: '#app',
   template: '<App/>',
   components: { App }
