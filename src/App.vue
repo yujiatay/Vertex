@@ -14,27 +14,30 @@
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="#">
-                  Customer Profile
-                </a>
+                Customer Profile
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Target Demographics
-                </a>
-                Age Group:
+                Target Demographics
+                <br/>
+                Age Group: 
                 <vue-slider ref="slider" v-bind="demo4" v-model="demo4.value"></vue-slider>
+              
+                Gender:<br/>
+                <p-check class="p-default p-smooth" color="primary">M</p-check>
+                <p-check class="p-default p-smooth" color="primary">F</p-check>
+                <br/>
+                Race:<br/>
+                <p-check class="p-default p-smooth" color="primary">Chinese</p-check>
+                <p-check class="p-default p-smooth" color="primary">Malay</p-check>
+                <p-check class="p-default p-smooth" color="primary">Indian</p-check>
+                <p-check class="p-default p-smooth" color="primary">Others</p-check>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Shop Selector
-                </a>
+                Shop Selector
                 <button v-on:click="addShop">Add Shop</button>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
-                  Customer Coverage
-                </a>
+                Customer Coverage
               </li>
             </ul>
             </div>
@@ -49,7 +52,7 @@
 
 <script>
 import L from 'leaflet';
-import vueSlider from 'vue-slider-component'
+import vueSlider from 'vue-slider-component';
 import subZones from './assets/subzones.json';
 
 export default {
@@ -134,9 +137,6 @@ export default {
         self.markers.addLayer(shop);
         self.map.off('click')
       })
-    },
-    createMarker (latitude, longitude) {
-      L.marker([latitude, longitude]).addTo(map)
     }
   }
 }
@@ -144,6 +144,7 @@ export default {
 
 <style>
 @import "../node_modules/leaflet/dist/leaflet.css";
+/* @import '../node_modules/pretty-checkbox/src/pretty-checkbox.scss'; */
 
 #section {
   display: flex;

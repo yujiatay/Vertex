@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import L from 'leaflet';
+import PrettyCheckbox from 'pretty-checkbox-vue';
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -13,7 +14,7 @@ L.Icon.Default.mergeOptions({
 });
 
 Vue.config.productionTip = false
-
+Vue.use(PrettyCheckbox)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
