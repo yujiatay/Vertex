@@ -15,23 +15,23 @@
           <ul class="nav flex-column">
             <li class="nav-item">
               <h5>Customer Profile</h5>
-              <switches v-model="profileEnabled" v-on:input="profileHandler" theme="bootstrap" color="primary"></switches>
+              <switches v-on:input="profileHandler" v-model="profileEnabled" theme="bootstrap" color="primary"></switches>
               Display on Map
             </li>
             <li class="nav-item">
               <h5>Target Demographics</h5>
               Age Group:
-              <vue-slider ref="slider" v-bind="demo4" v-model="demo4.value"></vue-slider>
+              <vue-slider v-on:input="activateTarget" ref="slider" v-bind="ageRange" v-model="ageRange.value"></vue-slider>
 
               Gender:<br/>
-              <p-check class="p-default p-smooth" color="primary">M</p-check>
-              <p-check class="p-default p-smooth" color="primary">F</p-check>
+              <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="male">M</p-check>
+              <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="female">F</p-check>
               <br/>
               Race:<br/>
-              <p-check class="p-default p-smooth" color="primary">Chinese</p-check>
-              <p-check class="p-default p-smooth" color="primary">Malay</p-check>
-              <p-check class="p-default p-smooth" color="primary">Indian</p-check>
-              <p-check class="p-default p-smooth" color="primary">Others</p-check>
+              <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="chinese">Chinese</p-check>
+              <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="malay">Malay</p-check>
+              <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="indian">Indian</p-check>
+              <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="eurasian">Eurasian</p-check>
             </li>
             <li class="nav-item">
               <h5>Shop Selector</h5>
@@ -50,7 +50,10 @@
       <div id="map" style="width: 100%; height: 100%">
       </div>
     </div>
-  </div>
+
+
+    <div id="map" style="width: 100%; height: 100%">
+    </div>
   </div>
 </template>
 
@@ -60,6 +63,7 @@
   import Switches from "vue-switches";
   import subZones from "./assets/subzones.json";
   import staycount from "./assets/processedStayCount";
+  import historicalData from "./assets/historicalData.json"
 
   export default {
     name: "app",
@@ -70,21 +74,27 @@
     data() {
       return {
         map: false,
-        demo4: {
+        ageRange: {
           value: ["20", "30"],
           width: "100%",
           height: 4,
           dotSize: 14,
           min: 1,
           max: 100,
-          interval: 3,
+          interval: 50,
           disabled: false,
           show: true,
           tooltip: false,
           piecewise: true,
           piecewiseLabel: true,
-          data: ["<10", "10", "20", "30", "40", "50", "60", "70", "80", ">80"]
+          data: ["<15", "20", "30", "40", "50", "60", "70", ">75"]
         },
+        male: false,
+        female: false,
+        chinese: false,
+        malay: false,
+        indian: false,
+        eurasian: false,
         profileEnabled: false,
         coverageEnabled: false
       };
@@ -117,6 +127,7 @@
         Shops: this.markers
       };
       L.control.layers(baseMaps, overlayMaps).addTo(this.map);
+
 
       function polygonStyle(feature) {
         return {
@@ -159,8 +170,8 @@
         }
 
         // average daily traffic
-        var bestDays = topThree(rawSubzoneStats["weekday"]).map(function(obj) {
-          switch(obj.id){
+        var bestDays = topThree(rawSubzoneStats["weekday"]).map(function (obj) {
+          switch (obj.id) {
             case 0:
               return {"MON": obj.value};
               break;
@@ -184,7 +195,7 @@
               break;
           }
         });
-        var bestHours = topThree(rawSubzoneStats["daily"]).map(function(obj) {
+        var bestHours = topThree(rawSubzoneStats["daily"]).map(function (obj) {
           var timeIndex = obj.id;
           var timeName = "";
           var result = {};
@@ -193,9 +204,9 @@
           } else if (timeIndex <= 11) {
             timeName = timeIndex + "am";
           } else if (timeIndex = 12) {
-            timeName = timeIndex  + "pm";
+            timeName = timeIndex + "pm";
           } else {
-            timeName = timeIndex  + "pm";
+            timeName = timeIndex + "pm";
           }
           result[timeName] = obj.value;
           return result;
@@ -204,6 +215,7 @@
         function entryToString(full, current) {
           return full + "  " + Object.keys(current)[0] + " (" + Math.floor(Object.values(current)[0]) + ")";
         }
+
         console.log(result["bestDay"]);
         console.log(result["bestHour"]);
         result["bestDay"] = bestDays.reduce(entryToString, "");
@@ -227,14 +239,14 @@
       // method that we will use to update the control based on feature properties passed
       this.info.update = function (subzoneName, subzoneID) {
         if (subzoneID == undefined) {
-          this._div.innerHTML = '<h4>Subzone Data</h4>' +  'Hover over a subzone';
+          this._div.innerHTML = '<h4>Subzone Data</h4>' + 'Hover over a subzone';
         } else {
           var stats = getStats(subzoneID);
           this._div.innerHTML = '<h4>Subzone Data</h4>' +
             '<b>' + subzoneName + '</b><br />' + '<b>Daily Average:</b> ' + stats.average + '<br />' +
-          '<b>Peak Day:</b> ' + stats.bestDay + '<br />' +
+            '<b>Peak Day:</b> ' + stats.bestDay + '<br />' +
             '<b>Peak Hours:</b> ' + stats.bestHour + '<br />' +
-          '<i>Unit for numbers is unique visitors per day</i> <br/>';
+            '<i>Unit for numbers is unique visitors per day</i> <br/>';
         }
       };
 
@@ -242,8 +254,9 @@
     methods: {
       profileHandler(value) {
         var self = this;
+
         function profileActivated() {
-          function highlightFeature(e){
+          function highlightFeature(e) {
             var layer = e.target;
             layer.setStyle({
               weight: 5,
@@ -258,12 +271,14 @@
             self.profileLayer.resetStyle(e.target);
             // info.update();
           }
-          function onEachSubzone(feature, layer){
+
+          function onEachSubzone(feature, layer) {
             layer.on({
               mouseover: highlightFeature,
               mouseout: resetHighlight
             });
           }
+
           self.info.addTo(self.map);
           self.profileLayer = L.geoJSON(subZones, {
             style: {
@@ -273,28 +288,169 @@
             onEachFeature: onEachSubzone
           }).addTo(self.map);
         }
-        function profileDeactivated(){
+
+        function profileDeactivated() {
           self.map.removeLayer(self.profileLayer);
           self.info.remove();
         }
 
-        if(value){
+        if (value) {
           profileActivated();
         } else {
           profileDeactivated();
         }
       },
+      activateTarget(dummy) {
+        var self = this;
+        var processedAgeRange = self.ageRange.value.map(processAgeRange)
+        var uniqueByAge = [0, 0, 0, 0, 0, 0, 0, 0] //8-values
+
+        function getColor(d) {
+          return d > 100000 ? '#800026' :
+            d > 70000 ? '#BD0026' :
+              d > 30000 ? '#E31A1C' :
+                d > 10000 ? '#FC4E2A' :
+                  d > 5000 ? '#FD8D3C' :
+                    d > 500 ? '#FEB24C' :
+                      d > 40 ? '#FFEDA0' :
+                        '#ffffff'
+        }
+
+
+        // Return corresponding ageGroup code from age range string
+        function processAgeRange(ageStr) {
+          var firstChar = ageStr.charAt(0);
+          switch (firstChar) {
+            case '<':
+              return 0;
+            case '>':
+              return 7;
+              break;
+            default:
+              return parseInt(firstChar);
+          }
+        }
+
+        function processGender(res) {
+          if (res == undefined) {
+            return;
+          }
+
+          if (!self.male && !self.female) {
+            processRaces(res["F"]);
+            processRaces(res["M"])
+          } else {
+            if (self.male) {
+              processRaces(res["M"]);
+            }
+            if (self.female) {
+              processRaces(res["F"]);
+            }
+          }
+        }
+
+        function processRaces(res) {
+          if (res == undefined) {
+            return;
+          }
+          if (!self.chinese && !self.malay && !self.indian && !self.eurasian) {
+            processAgeGroup(res["CHINESE"]);
+            processAgeGroup(res["MALAY"]);
+            processAgeGroup(res["INDIAN"]);
+            processAgeGroup(res["EURASIAN"]);
+          } else {
+            if (self.chinese) {
+              processAgeGroup(res["CHINESE"]);
+            }
+            if (self.malay) {
+              processAgeGroup(res["MALAY"]);
+            }
+            if (self.indian) {
+              processAgeGroup(res["INDIAN"]);
+            }
+            if (self.eurasian) {
+              processAgeGroup(res["EURASIAN"]);
+            }
+          }
+        }
+
+        function processAgeGroup(res) {
+          if (res == undefined) {
+            return;
+          }
+
+          var len = res.length;
+          for (var i = 0; i < len; i++) {
+            uniqueByAge[res[i].ageGroup] += (res[i].uniqueAgents == 40 ? 10 : res[i].uniqueAgents)
+          }
+        }
+
+        function process(res) {
+          processGender(res);
+          // Accumulate
+          return uniqueByAge.reduce(function (a, b) {
+            return a + b;
+          }, 0)
+        }
+
+        function style(feature) {
+          var sum = 0;
+          if (feature.id in historicalData) {
+            sum = process(historicalData[feature.id])
+            console.log(feature.id)
+            console.log(sum)
+          }
+          return {
+            fillColor: getColor(sum),
+            weight: 1,
+            opacity: 1,
+            color: "#909eb5",
+            fillOpacity: 0.7
+          }
+        }
+
+        L.geoJSON(subZones, {style: style}).addTo(self.map);
+
+
+        var legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+
+          var div = L.DomUtil.create('div', 'info legend'),
+            grades = [40, 500, 5000, 10000, 30000, 70000, 100000],
+            labels = [];
+
+          function reduceNum(num) {
+            if (num > 1000) {
+              return num / 1000 + 'k'
+            } else {
+              return num;
+            }
+          }
+
+          // loop through our density intervals and generate a label with a colored square for each interval
+          for (var i = 0; i < grades.length; i++) {
+            div.innerHTML +=
+              '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+              reduceNum(grades[i]) + (grades[i + 1] ? '&ndash;' + reduceNum(grades[i + 1]) + '<br>' : '+');
+          }
+
+          return div;
+        };
+
+        legend.addTo(self.map);
+      },
       addShop() {
         console.log("listen to click");
         var self = this;
-        this.map.on("click", function(e) {
+        this.map.on("click", function (e) {
           console.log(e.latlng);
-          var shop = L.marker(e.latlng, { draggable: "true" });
+          var shop = L.marker(e.latlng, {draggable: "true"});
           self.markers.addLayer(shop);
           self.map.off("click");
         });
       },
-      customerCoverage: function() {
+      customerCoverage: function () {
         // Get authorization token to query API
         var consumerKey = "ihOcCn39Jsz8l9E9pvegjfYfKHka";
         var consumerSecret = "8NZFxflAoDjEU0J_jLuyZfJghZ0a";
@@ -316,7 +472,7 @@
         //   });
         var tokenResponse = this.$http.post(
           "https://apistore.datasparkanalytics.com:443/token",
-          { grant_type: "client_credentials" },
+          {grant_type: "client_credentials"},
           {
             headers: {
               Authorization: "Basic " + consumerKeySecretB64
@@ -325,12 +481,12 @@
           }
         );
         // Assign the access token to token
-        tokenResponse.then(function(value) {
+        tokenResponse.then(function (value) {
           token = value.body.access_token;
         });
 
         // Initialize query fields
-        var queryBody = function(eachDate, destination_subzone_id) {
+        var queryBody = function (eachDate, destination_subzone_id) {
           return {
             date: eachDate,
             timeSeriesReference: "destination",
@@ -427,7 +583,7 @@
 
       }
     }
-  };
+  }
 </script>
 
 <style>
@@ -455,6 +611,18 @@
     /* padding-left: 8px; */
     /* border-left: 1px solid #ccc; */
   }
+  .legend {
+    line-height: 18px;
+    color: #555;
+  }
+  .legend i {
+    vertical-align: top;
+    width: 30px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+  }
   .info {
     padding: 6px 8px;
     font: 14px/16px Arial, Helvetica, sans-serif;
@@ -463,6 +631,7 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
   }
+
   .info h4 {
     margin: 0 0 5px;
     color: #777;
