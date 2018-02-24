@@ -141,11 +141,11 @@ export default {
       var uniqueByAge = [0,0,0,0,0,0,0,0] //8-values
 
       function getColor(d) {
-        return d > 100000 ? '#800026' :
-               d > 70000 ? '#BD0026' :
-               d > 30000 ? '#E31A1C' :
-               d > 10000 ? '#FC4E2A' :
-               d > 5000  ? '#FD8D3C' :
+        return d > 5000 ? '#800026' :
+               d > 4000 ? '#BD0026' :
+               d > 3000 ? '#E31A1C' :
+               d > 2000 ? '#FC4E2A' :
+               d > 1000  ? '#FD8D3C' :
                d > 500   ? '#FEB24C' :
                d > 40    ? '#FFEDA0' :
                            '#ffffff'
@@ -209,6 +209,9 @@ export default {
           uniqueByAge[res[i].ageGroup] += (res[i].uniqueAgents == 40 ? 10 : res[i].uniqueAgents)
         }
       }
+      function resetUnique(){
+        uniqueByAge = [0,0,0,0,0,0,0,0]
+      }
 
       function process(res){
         processGender(res);
@@ -219,6 +222,7 @@ export default {
       function style(feature){
         var sum = 0;
         if(feature.id in historicalData){
+          resetUnique()
           sum = process(historicalData[feature.id])
           console.log(feature.id)
           console.log(sum)
@@ -239,11 +243,11 @@ export default {
       legend.onAdd = function (map) {
 
           var div = L.DomUtil.create('div', 'info legend'),
-              grades = [40, 500, 5000, 10000, 30000, 70000, 100000],
+              grades = [40, 500, 1000, 2000, 3000, 4000, 5000],
               labels = [];
 
           function reduceNum(num){
-            if(num > 1000){
+            if(num >= 1000){
               return num/1000 + 'k'
             } else {
               return num;
@@ -431,12 +435,13 @@ export default {
   /* border-left: 1px solid #ccc; */
 }
 .legend {
-    line-height: 18px;
+    vertical-align: top;
+    line-height: 20px;
     color: #555;
 }
 .legend i {
     vertical-align: top;
-    width: 30px;
+    width: 18px;
     height: 18px;
     float: left;
     margin-right: 8px;
@@ -444,7 +449,7 @@ export default {
 }
 .info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    /* font: 14px/16px Arial, Helvetica, sans-serif; */
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
