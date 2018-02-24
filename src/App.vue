@@ -22,6 +22,8 @@
                 <a class="nav-link" href="#">
                   Target Demographics
                 </a>
+                Age Group:
+                <vue-slider ref="slider" v-bind="demo4" v-model="demo4.value"></vue-slider>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="#">
@@ -47,15 +49,43 @@
 
 <script>
 import L from 'leaflet';
+import vueSlider from 'vue-slider-component'
 import subZones from './assets/subzones.json';
 
 export default {
   name: 'app',
   components: {
+    vueSlider,
   },
   data () {
     return {
       map: false,
+      demo4: {
+        value: ['20', '30'],
+        width: '100%',
+        height: 4,
+        dotSize: 14,
+        min: 1,
+        max: 100,
+        interval: 3,
+        disabled: false,
+        show: true,
+        tooltip: false,
+        piecewise: true,
+        piecewiseLabel: true,
+        data: [
+          '<10',
+          '10',
+          '20',
+          '30',
+          '40',
+          '50',
+          '60',
+          '70',
+          '80',
+          '>80',
+        ]
+      },
     }
   }, 
   mounted () {
