@@ -33,7 +33,7 @@ export default {
               fillColor: '#ffffff', 
               fillOpacity: 0,
               color: '#909eb5',
-              weight: 2,
+              weight: 1,
               opacity: 1,
           };
       }
