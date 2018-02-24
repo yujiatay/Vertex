@@ -42,7 +42,9 @@
                 <switches v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
                 Display on Map
               </li>
-              
+              <div id="example-1">
+                <button v-on:click="customerCoverage">Customer coverage</button>
+              </div>
             </ul>
             </div>
         </nav>
@@ -59,6 +61,7 @@ import L from "leaflet";
 import vueSlider from "vue-slider-component";
 import Switches from "vue-switches";
 import subZones from "./assets/subzones.json";
+import leafletPip from "@mapbox/leaflet-pip";
 
 export default {
   name: "app",
@@ -139,6 +142,24 @@ export default {
       });
     },
     customerCoverage: function() {
+      /**
+       * Find coverage area based on shop markers.
+       * this.markers is a collection of markers, each representing one
+       * layer.
+       */
+      var destinations = [];
+      var markers = this.markers.getLayers();
+      for (let marker of markers) {
+        var subzones = L.geoJson(subZones);
+        var latlng = marker.getLatLng();
+        var subzone = leafletPip.pointInLayer(
+          [latlng.lng, latlng.lat],
+          subzones,
+          true
+        );
+        destinations.push(subzone[0].feature.id);
+      }
+
       // Get authorization token to query API
       var consumerKey = "ihOcCn39Jsz8l9E9pvegjfYfKHka";
       var consumerSecret = "8NZFxflAoDjEU0J_jLuyZfJghZ0a";
@@ -146,7 +167,7 @@ export default {
       var keySecret = encodeURI(consumerKey + ":" + consumerSecret);
       var consumerKeySecretB64 = btoa(decodeURI(keySecret));
 
-      var token;
+      var token = "4d10fa99-6da1-357a-8bbb-82c3b00aeaa0";
       //   var tokenResponse = $.ajax({
       //     type: "POST",
       //     url: "https://apistore.datasparkanalytics.com:443/token",
@@ -169,30 +190,34 @@ export default {
         }
       );
       // Assign the access token to token
-      tokenResponse.then(function(value) {
-        token = value.body.access_token;
-      });
+      //   tokenResponse.then(function(value) {
+      //     return value.body.access_token;
+      //   });
 
       // Initialize query fields
-      var queryBody = function(eachDate, destination_subzone_id) {
+      var queryBody = function(
+        eachDate,
+        destination_type,
+        destination_subzone_id
+      ) {
         return {
           date: eachDate,
           timeSeriesReference: "destination",
           location: {
             locationType: "locationHierarchyLevel",
-            levelType: "destination_subzone",
+            levelType: destination_type,
             id: destination_subzone_id
           },
           queryGranularity: {
             type: "period",
             period: "P1D"
           },
-          filter: {
-            type: "bound",
-            dimension: "agent_year_of_birth",
-            lower: 1980,
-            upper: 2000
-          },
+          //   filter: {
+          //     type: "bound",
+          //     dimension: "agent_year_of_birth",
+          //     lower: 1980,
+          //     upper: 2000
+          //   },
           dimensionFacets: ["origin_subzone"],
           aggregations: [
             {
@@ -208,65 +233,130 @@ export default {
       // Set previous date to the last day of the previous month
       var prevDate = currDate;
       prevDate.setDate(0);
-      // Debug print number of days of previous month
-      console.log(prevDate.getDate());
 
-      var aggregatedResponse = this.$http.post(
-        "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
-        JSON.stringify(
-          queryBody(
-            prevDate.getFullYear() + "-" + prevDate.getMonth() + 1 + "-" + 1,
-            "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
-          )
-        ),
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          emulateJSON: true
-        }
-      );
-      setTimeout(1000);
-      console.log(aggregatedResponse);
+      // Initalize all sampling dates in the beginning.
+      var samplingDates = [];
+      for (let num = 1; num <= prevDate.getDate(); num++) {
+          samplingDates.push(num);
+      }
+
+      /**
+       * Random sampling.
+       * Randomly removes certains dates of the month from the array prevDate.
+       * Number of dates to remove depend on the number of markers (i.e. shops)
+       * that were placed on the map.
+       *
+       * Pre-condition: Max no. of shops = 3.
+       * Post-condition: Number of days of sampled data will be
+       * (num of days in month) / (no. of shops)
+       */
+      for (
+        let days = samplingDates.length * (1 - 1 / destinations.length);
+        days >= 0;
+        days--
+      ) {
+          console.log(samplingDates.length);
+        samplingDates.splice(Math.floor(Math.random() * samplingDates.length), 1);
+      }
+
+      // Function to send query to ODmatrix API and get back a promise
+      var self = this;
+      function queryResponse(day, destination) {
+        return self.$http.post(
+          "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
+          JSON.stringify(
+            queryBody(
+              prevDate.getFullYear() +
+                "-" +
+                prevDate.getMonth() +
+                1 +
+                "-" +
+                day,
+              "destination_subzone",
+              destination // based on destinations from markers
+            )
+          ),
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+              "Content-Type": "application/json"
+            },
+            emulateJSON: true
+          }
+        );
+      }
+
+      /**
+       * Constructor for aggregated response.
+       */
+      function aggregated_response(destination) {
+        this.origin_subzones = {};
+        this.destination_subzone = destination;
+        this.month = prevDate.getMonth();
+        this.promises = [];
+        this.numDays = samplingDates.length;
+      }
+
+      // Initialize aggregatedResponse with the 1st day statistics
+      //   var firstResponse = queryResponse(1);
+      function origin_subzone_constructor(subzone_id, unique_agents, name) {
+        this.id = subzone_id;
+        this.unique_agents = unique_agents;
+        this.name = name;
+      }
+
+      /**
+       * Constructs aggregatedResponses hash object for storing multiple
+       * aggregatedResponses.
+       */
+      var aggregatedResponses = {};
+      for (let destination of destinations) {
+        aggregatedResponses[destination] = new aggregated_response(destination);
+      }
 
       // Query API for all the days in the previous month
-      //   for (var i = 2; i <= prevDate.getDate(); i++) {
-      //     // token variable is a valid access token (see Getting Started)
-      //     var queryResponse = this.$http.post(
-      //       "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
-      //       {
-      //         data: JSON.stringify(
-      //           queryBody(
-      //             prevDate.getFullYear() +
-      //               "-" +
-      //               prevDate.getMonth() +
-      //               1 +
-      //               "-" +
-      //               1,
-      //             "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
-      //           )
-      //         )
-      //       },
-      //       {
-      //         headers: {
-      //           Authorization: "Bearer " + token,
-      //           "Content-Type": "application/json"
-      //         },
-      //         emulateJSON: true
-      //       }
-      //     );
-      //     setTimeout(1000);
-      //     queryResponse.forEach(origin => {
-      //       if (
-      //         aggregatedResponse.event.origin_subzone ===
-      //         origin.event.origin_subzone
-      //       ) {
-      //         aggregatedResponse.event.hyperUnique_unique_agents +=
-      //           origin.event.hyperUnique_unique_agents;
-      //       }
-      //     });
-      //   }
+      var promises = [];
+      for (let destination of destinations) {
+        for (var i = 1; i <= prevDate.getDate(); i++) {
+          var response = queryResponse(i, destination);
+          aggregatedResponses[destination].promises.push(response);
+        }
+      }
+
+      /**
+       * Pre-condition: No useless NA data
+       * Post-condition: aggregatedResponse is fully stocked with statistics
+       * for the previous month
+       */
+      for (let destination of destinations) {
+        Promise.all(aggregatedResponses[destination].promises).then(function(
+          responses
+        ) {
+          for (let response of responses) {
+            for (let origin of response.body) {
+              if (
+                typeof aggregatedResponses[destination].origin_subzones[
+                  origin.event.origin_subzone
+                ] === "undefined"
+              ) {
+                aggregatedResponses[destination].origin_subzones[
+                  origin.event.origin_subzone
+                ] = new origin_subzone_constructor(
+                  origin.event.origin_subzone,
+                  origin.event.hyperUnique_unique_agents,
+                  "" // PADDED DUMMY, REPLACE WITH ACTUAL NAME OF ORIGIN SUBZONE WHEN AVAIL
+                );
+              } else {
+                aggregatedResponses[destination].origin_subzones[
+                  origin.event.origin_subzone
+                ].unique_agents +=
+                  origin.event.hyperUnique_unique_agents;
+              }
+            }
+          }
+          console.log(aggregatedResponses[destination]);
+        });
+      }
     }
   }
 };
