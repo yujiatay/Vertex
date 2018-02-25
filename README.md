@@ -1,6 +1,6 @@
 # Vertex
 
-> A Vue.js visualization and management tool for retailers to categorize their customers into demographic groups. 
+> A Vue.js visualization and management tool for retailers to categorize their customers into demographics. 
 
 ## Installing
 
@@ -35,7 +35,7 @@ Displays an eagle's eye view of shop / franchise locations
 - Vue.js - Web Application
 - Leaflet.js - Interactive Map
 - [Data.gov.sg](https://data.gov.sg/dataset/master-plan-2014-subzone-boundary-web?resource_id=1f7498f8-0132-4e74-81b2-3fe3199afecf) - Master Plan 2014 Subzone Boundary
-- [DataSpark](https://www.datasparkanalytics.com/) Stay Point API and Origin Destination Matrix API
+- [DataSpark](https://www.datasparkanalytics.com/) - Mobility Intelligence APIs
 
 ## Authors
 
@@ -43,6 +43,8 @@ Displays an eagle's eye view of shop / franchise locations
 - Foo Guo Wei
 - John Phua
 - Adam Chew
+
+Built for IDE@ DataSpark Open Challenge 2018.
 
 ## License
 
