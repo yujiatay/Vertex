@@ -10,7 +10,7 @@
     </div>
 
     <div id="section" class="container-fluid">
-      <nav class="col-md-3 d-none d-md-block sidebar">
+      <nav id="sidebar" class="col-md-3 d-none d-md-block sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
             <li class="nav-item">
@@ -836,4 +836,11 @@
     margin: 0 0 5px;
     color: #777;
   }
+
+  h5 {
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 0.5em;
+      margin-top: 0.5em;
+  }
+
 </style>
