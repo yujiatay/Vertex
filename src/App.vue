@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="d-flex flex-column flex-md-row align-items-center p-2 px-md-4 bg-dark border-bottom box-shadow">
-      <h5 class="my-0 mr-md-auto font-weight-normal text-light">VERTEX</h5>
+      <h5 id="name" class="my-0 mr-md-auto font-weight-normal text-light">VERTEX</h5>
       <nav class="my-2 my-md-0 mr-md-3">
         <a class="p-2 text-light" href="#">Home</a>
         <a class="p-2 text-light" href="#">About</a>
@@ -841,6 +841,12 @@
       border-bottom: 1px solid #ccc;
       margin-bottom: 0.5em;
       margin-top: 0.5em;
+  }
+
+  #name {
+    border-bottom: none;
+    margin-bottom: 0em;
+    margin-top: 0em;
   }
 
 </style>
