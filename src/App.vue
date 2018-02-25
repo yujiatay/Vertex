@@ -32,6 +32,9 @@
               <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="malay">Malay</p-check>
               <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="indian">Indian</p-check>
               <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="eurasian">Eurasian</p-check>
+              <br/>
+              <switches v-on:input="targetHandler" v-model="targetEnabled" theme="bootstrap" color="primary"></switches>
+              Display on Map
             </li>
             <li class="nav-item">
               <h5>Shop Selector</h5>
@@ -39,7 +42,7 @@
             </li>
             <li class="nav-item">
               <h5>Customer Coverage</h5>
-              <switches v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
+              <switches v-on:input="customerCoverage" v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
               Display on Map
             </li>
 
@@ -63,7 +66,8 @@
   import Switches from "vue-switches";
   import subZones from "./assets/subzones.json";
   import profileData from "./assets/processedProfileData";
-  import historicalData from "./assets/historicalData.json"
+  import historicalData from "./assets/historicalData.json";
+  import leafletPip from "@mapbox/leaflet-pip";
 
   export default {
     name: "app",
@@ -95,6 +99,7 @@
         malay: false,
         indian: false,
         eurasian: false,
+        targetEnabled: false,
         profileEnabled: false,
         coverageEnabled: false
       };
@@ -128,7 +133,6 @@
       };
       L.control.layers(baseMaps, overlayMaps).addTo(this.map);
 
-
       function polygonStyle(feature) {
         return {
           fillColor: "#ffffff",
@@ -151,9 +155,9 @@
         // k-greatest traffic
         // Returns topThree indexes
         function topThree(arr) {
-          var first = {id: -1, value: 0};
-          var second = {id: -1, value: 0};
-          var third = {id: -1, value: 0};
+          var first = { id: -1, value: 0 };
+          var second = { id: -1, value: 0 };
+          var third = { id: -1, value: 0 };
           for (var i = 0; i < arr.length; i++) {
             if (arr[i] > first.value) {
               first.id = i;
@@ -170,32 +174,32 @@
         }
 
         // average daily traffic
-        var bestDays = topThree(rawSubzoneStats["weekday"]).map(function (obj) {
+        var bestDays = topThree(rawSubzoneStats["weekday"]).map(function(obj) {
           switch (obj.id) {
             case 0:
-              return {"MON": obj.value};
+              return { MON: obj.value };
               break;
             case 1:
-              return {"TUE": obj.value};
+              return { TUE: obj.value };
               break;
             case 2:
-              return {"WED": obj.value};
+              return { WED: obj.value };
               break;
             case 3:
-              return {"THU": obj.value};
+              return { THU: obj.value };
               break;
             case 4:
-              return {"FRI": obj.value};
+              return { FRI: obj.value };
               break;
             case 5:
-              return {"SAT": obj.value};
+              return { SAT: obj.value };
               break;
             case 6:
-              return {"SUN": obj.value};
+              return { SUN: obj.value };
               break;
           }
         });
-        var bestHours = topThree(rawSubzoneStats["daily"]).map(function (obj) {
+        var bestHours = topThree(rawSubzoneStats["daily"]).map(function(obj) {
           var timeIndex = obj.id;
           var timeName = "";
           var result = {};
@@ -203,53 +207,169 @@
             timeName = "12am";
           } else if (timeIndex <= 11) {
             timeName = timeIndex + "am";
-          } else if (timeIndex === 12) {
+          } else if ((timeIndex = 12)) {
             timeName = timeIndex + "pm";
           } else {
-            timeName = timeIndex - 12 + "pm";
+            timeName = timeIndex + "pm";
           }
           result[timeName] = obj.value;
           return result;
         });
 
         function entryToString(full, current) {
-          return full + "  " + Object.keys(current)[0] + " (" + Math.floor(Object.values(current)[0]) + ")";
+          return (
+            full +
+            "  " +
+            Object.keys(current)[0] +
+            " (" +
+            Math.floor(Object.values(current)[0]) +
+            ")"
+          );
+        }
+        function entryToPercent(democase, dict) {
+          var total = 0;
+          var resString = "";
+          if (democase === "gender") {
+            total = dict["demoTotal"][0];
+            for (var key in dict[democase]) {
+              resString += ("<br\><b>" + key + ":</b> " + Math.round((dict[democase][key] / total) * 100) + "%");
+            }
+          } else if (democase === "race") {
+            total = dict["demoTotal"][1];
+            for (var key in dict[democase]) {
+              resString += ("<br\><b>" + key + ":</b> " + Math.round((dict[democase][key] / total) * 100) + "%");
+            }
+          } else if (democase === "ageGroup") {
+            total = dict["demoTotal"][2];
+            for (var i = 0; i < dict[democase].length; i++) {
+              var group = "";
+              switch(i) {
+                case 0:
+                  group = "<15";
+                  break;
+                case 1:
+                  group = "15-25";
+                  break;
+                case 2:
+                  group = "25-35";
+                  break;
+                case 3:
+                  group = "35-45";
+                  break;
+                case 4:
+                  group = "45-55";
+                  break;
+                case 5:
+                  group = "55-65";
+                  break;
+                case 6:
+                  group = "65-75";
+                  break;
+                case 7:
+                  group = ">75";
+                  break;
+              }
+              resString += ("<br\><b>" + group + ":</b> " + Math.round((dict[democase][i] / total) * 100) + "%");
+            }
+          }
+          return resString;
         }
 
         console.log(result["bestDay"]);
         console.log(result["bestHour"]);
         result["bestDay"] = bestDays.reduce(entryToString, "");
         result["bestHour"] = bestHours.reduce(entryToString, "");
-
+        result["gender"] = entryToPercent("gender", rawSubzoneStats);
+        result["race"] = entryToPercent("race", rawSubzoneStats);
+        result["ageGroup"] = entryToPercent("ageGroup", rawSubzoneStats);
         return result;
       }
 
-
       this.info = L.control();
 
-      this.info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+      this.info.onAdd = function(map) {
+        this._div = L.DomUtil.create("div", "info"); // create a div with a class "info"
         this.update();
         return this._div;
       };
-      this.info.onRemove = function (map) {
+      this.info.onRemove = function(map) {
         console.log(this._div);
         this._div.remove();
       };
       // method that we will use to update the control based on feature properties passed
-      this.info.update = function (subzoneName, subzoneID) {
+      this.info.update = function(subzoneName, subzoneID) {
         if (subzoneID == undefined) {
-          this._div.innerHTML = '<h4>Subzone Data</h4>' + 'Hover over a subzone';
+          this._div.innerHTML = "<h4>Subzone Data</h4>" + "Hover over a subzone";
         } else {
           var stats = getStats(subzoneID);
-          this._div.innerHTML = '<h4>Subzone Data</h4>' +
-            '<b>' + subzoneName + '</b><br />' + '<b>Daily Average:</b> ' + stats.average + '<br />' +
-            '<b>Peak Day:</b> ' + stats.bestDay + '<br />' +
-          '<i>Unit for numbers is unique visitors per day</i> <br/>' +
-            '<b>Peak Hours:</b> ' + stats.bestHour + '<br />' +
-            '<i>Unit for numbers is unique visitors per hour</i> <br/>';
+          this._div.innerHTML =
+            "<h4>Subzone Data</h4>" +
+            "<b>" +
+            subzoneName +
+            "</b><br />" +
+            "<b>Gender:</b>" +
+            stats.gender +
+            "<br />" +
+            "<b>Race:</b>" +
+            stats.race +
+            "<br />" +
+            "<b>Age Group:</b>" +
+            stats.ageGroup +
+            "<br />" +
+            "<b>Daily Average:</b> " +
+            stats.average +
+            "<br />" +
+            "<b>Peak Day:</b> " +
+            stats.bestDay +
+            "<br />" +
+            "<b>Peak Hours:</b> " +
+            stats.bestHour +
+            "<br />" +
+            "<i>Unit for numbers is unique visitors per day</i> <br/>";
         }
+      }
+      this.targetLegend = L.control({position: "bottomright"});
+      this.targetLegend.getColor = function (d) {
+        return d > 5000 ? '#800026' :
+          d > 4000 ? '#BD0026' :
+            d > 3000 ? '#E31A1C' :
+              d > 2000 ? '#FC4E2A' :
+                d > 1000 ? '#FD8D3C' :
+                  d > 500 ? '#FEB24C' :
+                    d > 40 ? '#FFEDA0' :
+                      '#ffffff'
+      }
+      this.targetLegend.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info legend');
+        var grades = [40, 500, 1000, 2000, 3000, 4000, 5000];
+        var labels = [];
+
+        function reduceNum(num) {
+          if (num >= 1000) {
+            return num / 1000 + 'k'
+          } else {
+            return num;
+          }
+        }
+
+        // loop through our density intervals and generate a label with a colored square for each interval
+        for (var i = 0; i < grades.length; i++) {
+          this._div.innerHTML +=
+            '<i style="background:' +
+            this.getColor(grades[i] + 1) +
+            '"></i> ' +
+            reduceNum(grades[i]) +
+            (grades[i + 1]
+              ? "&ndash;" + reduceNum(grades[i + 1]) + "<br>"
+              : "+");
+        }
+        return this._div;
       };
+      this.targetLegend.onRemove = function (map) {
+        this._div.remove();
+      }
+
+
 
     },
     methods: {
@@ -261,12 +381,11 @@
             var layer = e.target;
             layer.setStyle({
               weight: 5,
-              color: '#777',
+              color: "#777",
               fillOpacity: 0.7
             });
             self.info.update(layer.feature.properties.name, layer.feature.id);
           }
-
 
           function resetHighlight(e) {
             self.profileLayer.resetStyle(e.target);
@@ -291,8 +410,10 @@
         }
 
         function profileDeactivated() {
-          self.map.removeLayer(self.profileLayer);
-          self.info.remove();
+          if (self.profileLayer !== undefined) {
+            self.map.removeLayer(self.profileLayer);
+            self.info.remove();
+          }
         }
 
         if (value) {
@@ -301,30 +422,35 @@
           profileDeactivated();
         }
       },
-      activateTarget(dummy) {
+      targetHandler(value) {
         var self = this;
-        var processedAgeRange = self.ageRange.value.map(processAgeRange)
-        var uniqueByAge = [0, 0, 0, 0, 0, 0, 0, 0] //8-values
-
-        function getColor(d) {
-          return d > 100000 ? '#800026' :
-            d > 70000 ? '#BD0026' :
-              d > 30000 ? '#E31A1C' :
-                d > 10000 ? '#FC4E2A' :
-                  d > 5000 ? '#FD8D3C' :
-                    d > 500 ? '#FEB24C' :
-                      d > 40 ? '#FFEDA0' :
-                        '#ffffff'
+        if(value) {
+          self.targetLegend.addTo(self.map)
+          self.activateTarget(0)
+        } else {
+          console.log("removing targetLayer")
+          if (self.targetLayer !== undefined) {
+            self.targetLegend.remove();
+            self.map.removeLayer(self.targetLayer);
+          }
         }
+      },
+      activateTarget(dummy) {
+        if(!this.targetEnabled) { return; }
+
+        var self = this;
+        var processedAgeRange = self.ageRange.value.map(processAgeRange);
+        var uniqueByAge = [0, 0, 0, 0, 0, 0, 0, 0]; //8-values
+
 
 
         // Return corresponding ageGroup code from age range string
         function processAgeRange(ageStr) {
           var firstChar = ageStr.charAt(0);
           switch (firstChar) {
-            case '<':
+            case "<":
               return 0;
-            case '>':
+            case ">":
               return 7;
               break;
             default:
@@ -339,7 +465,7 @@
 
           if (!self.male && !self.female) {
             processRaces(res["F"]);
-            processRaces(res["M"])
+            processRaces(res["M"]);
           } else {
             if (self.male) {
               processRaces(res["M"]);
@@ -382,76 +508,79 @@
 
           var len = res.length;
           for (var i = 0; i < len; i++) {
-            uniqueByAge[res[i].ageGroup] += (res[i].uniqueAgents == 40 ? 10 : res[i].uniqueAgents)
+            if (res[i].ageGroup < processedAgeRange[0] || res[i].ageGroup > processedAgeRange[1]) {
+              continue;
+            }
+            uniqueByAge[res[i].ageGroup] +=
+              res[i].uniqueAgents == 40 ? 10 : res[i].uniqueAgents;
           }
+        }
+        function resetUnique(){
+          uniqueByAge = [0,0,0,0,0,0,0,0]
         }
 
         function process(res) {
           processGender(res);
           // Accumulate
-          return uniqueByAge.reduce(function (a, b) {
+          return uniqueByAge.reduce(function(a, b) {
             return a + b;
-          }, 0)
+          }, 0);
         }
 
         function style(feature) {
           var sum = 0;
-          if (feature.id in historicalData) {
+          if(feature.id in historicalData){
+            resetUnique()
             sum = process(historicalData[feature.id])
-            console.log(feature.id)
-            console.log(sum)
+            console.log(feature.id + ": " + sum)
           }
           return {
-            fillColor: getColor(sum),
+            fillColor: self.targetLegend.getColor(sum),
             weight: 1,
             opacity: 1,
             color: "#909eb5",
-            fillOpacity: 0.7
-          }
+            fillOpacity: 0.5
+          };
         }
-
-        L.geoJSON(subZones, {style: style}).addTo(self.map);
-
-
-        var legend = L.control({position: 'bottomright'});
-
-        legend.onAdd = function (map) {
-
-          var div = L.DomUtil.create('div', 'info legend'),
-            grades = [40, 500, 5000, 10000, 30000, 70000, 100000],
-            labels = [];
-
-          function reduceNum(num) {
-            if (num > 1000) {
-              return num / 1000 + 'k'
-            } else {
-              return num;
-            }
-          }
-
-          // loop through our density intervals and generate a label with a colored square for each interval
-          for (var i = 0; i < grades.length; i++) {
-            div.innerHTML +=
-              '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-              reduceNum(grades[i]) + (grades[i + 1] ? '&ndash;' + reduceNum(grades[i + 1]) + '<br>' : '+');
-          }
-
-          return div;
-        };
-
-        legend.addTo(self.map);
+        if(self.targetLayer != undefined) { self.map.removeLayer(self.targetLayer);}
+        self.targetLayer = L.geoJSON(subZones, { style: style }).addTo(self.map);
       },
       addShop() {
         console.log("listen to click");
         var self = this;
-        this.map.on("click", function (e) {
+        this.map.on("click", function(e) {
           console.log(e.latlng);
-          var shop = L.marker(e.latlng, {draggable: "true"});
+          var shop = L.marker(e.latlng, { draggable: "true" });
           self.markers.addLayer(shop);
           self.map.off("click");
         });
       },
-      customerCoverage: function () {
+      coverageHandler: function(toggled) {
+        if (toggled) {
+          customerCoverage();
+        } else {
+
+        }
+      },
+      customerCoverage: function() {
+        /**
+         * Find coverage area based on shop markers.
+         * this.markers is a collection of markers, each representing one
+         * layer.
+         */
+        var destinations = [];
+        var markers = this.markers.getLayers();
+        for (let marker of markers) {
+          var subzones = L.geoJson(subZones);
+          var latlng = marker.getLatLng();
+          var subzone = leafletPip.pointInLayer(
+            [latlng.lng, latlng.lat],
+            subzones,
+            true
+          );
+          destinations.push(subzone[0].feature.id);
+        }
+
         // Get authorization token to query API
         var consumerKey = "ihOcCn39Jsz8l9E9pvegjfYfKHka";
         var consumerSecret = "8NZFxflAoDjEU0J_jLuyZfJghZ0a";
@@ -459,7 +588,7 @@
         var keySecret = encodeURI(consumerKey + ":" + consumerSecret);
         var consumerKeySecretB64 = btoa(decodeURI(keySecret));
 
-        var token;
+        var token = "4d10fa99-6da1-357a-8bbb-82c3b00aeaa0";
         //   var tokenResponse = $.ajax({
         //     type: "POST",
         //     url: "https://apistore.datasparkanalytics.com:443/token",
@@ -473,7 +602,7 @@
         //   });
         var tokenResponse = this.$http.post(
           "https://apistore.datasparkanalytics.com:443/token",
-          {grant_type: "client_credentials"},
+          { grant_type: "client_credentials" },
           {
             headers: {
               Authorization: "Basic " + consumerKeySecretB64
@@ -482,30 +611,34 @@
           }
         );
         // Assign the access token to token
-        tokenResponse.then(function (value) {
-          token = value.body.access_token;
-        });
+        //   tokenResponse.then(function(value) {
+        //     return value.body.access_token;
+        //   });
 
         // Initialize query fields
-        var queryBody = function (eachDate, destination_subzone_id) {
+        var queryBody = function(
+          eachDate,
+          destination_type,
+          destination_subzone_id
+        ) {
           return {
             date: eachDate,
             timeSeriesReference: "destination",
             location: {
               locationType: "locationHierarchyLevel",
-              levelType: "destination_subzone",
+              levelType: destination_type,
               id: destination_subzone_id
             },
             queryGranularity: {
               type: "period",
               period: "P1D"
             },
-            filter: {
-              type: "bound",
-              dimension: "agent_year_of_birth",
-              lower: 1980,
-              upper: 2000
-            },
+            //   filter: {
+            //     type: "bound",
+            //     dimension: "agent_year_of_birth",
+            //     lower: 1980,
+            //     upper: 2000
+            //   },
             dimensionFacets: ["origin_subzone"],
             aggregations: [
               {
@@ -521,70 +654,135 @@
         // Set previous date to the last day of the previous month
         var prevDate = currDate;
         prevDate.setDate(0);
-        // Debug print number of days of previous month
-        console.log(prevDate.getDate());
 
-        var aggregatedResponse = this.$http.post(
-          "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
-          JSON.stringify(
-            queryBody(
-              prevDate.getFullYear() + "-" + prevDate.getMonth() + 1 + "-" + 1,
-              "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
-            )
-          ),
-          {
-            headers: {
-              Authorization: "Bearer " + token,
-              "Content-Type": "application/json"
-            },
-            emulateJSON: true
-          }
-        );
-        setTimeout(1000);
-        console.log(aggregatedResponse);
+        // Initalize all sampling dates in the beginning.
+        var samplingDates = [];
+        for (let num = 1; num <= prevDate.getDate(); num++) {
+          samplingDates.push(num);
+        }
+
+        /**
+         * Random sampling.
+         * Randomly removes certains dates of the month from the array prevDate.
+         * Number of dates to remove depend on the number of markers (i.e. shops)
+         * that were placed on the map.
+         *
+         * Pre-condition: Max no. of shops = 3.
+         * Post-condition: Number of days of sampled data will be
+         * (num of days in month) / (no. of shops)
+         */
+        for (
+          let days = samplingDates.length * (1 - 1 / destinations.length);
+          days >= 0;
+          days--
+        ) {
+          samplingDates.splice(
+            Math.floor(Math.random() * samplingDates.length),
+            1
+          );
+        }
+
+        // Function to send query to ODmatrix API and get back a promise
+        var self = this;
+        function queryResponse(day, destination) {
+          return self.$http.post(
+            "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
+            JSON.stringify(
+              queryBody(
+                prevDate.getFullYear() +
+                "-" +
+                prevDate.getMonth() +
+                1 +
+                "-" +
+                day,
+                "destination_subzone",
+                destination // based on destinations from markers
+              )
+            ),
+            {
+              headers: {
+                Authorization: "Bearer " + token,
+                "Content-Type": "application/json"
+              },
+              emulateJSON: true
+            }
+          );
+        }
+
+        /**
+         * Constructor for aggregated response.
+         */
+        function aggregated_response(destination) {
+          this.origin_subzones = {};
+          this.destination_subzone = destination;
+          this.month = prevDate.getMonth();
+          this.promises = [];
+          this.numDays = samplingDates.length;
+        }
+
+        // Initialize aggregatedResponse with the 1st day statistics
+        //   var firstResponse = queryResponse(1);
+        function origin_subzone_constructor(subzone_id, unique_agents, name) {
+          this.id = subzone_id;
+          this.unique_agents = unique_agents;
+          this.name = name;
+        }
+
+        /**
+         * Constructs aggregatedResponses hash object for storing multiple
+         * aggregatedResponses.
+         */
+        var aggregatedResponses = {};
+        for (let destination of destinations) {
+          aggregatedResponses[destination] = new aggregated_response(destination);
+        }
 
         // Query API for all the days in the previous month
-        //   for (var i = 2; i <= prevDate.getDate(); i++) {
-        //     // token variable is a valid access token (see Getting Started)
-        //     var queryResponse = this.$http.post(
-        //       "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
-        //       {
-        //         data: JSON.stringify(
-        //           queryBody(
-        //             prevDate.getFullYear() +
-        //               "-" +
-        //               prevDate.getMonth() +
-        //               1 +
-        //               "-" +
-        //               1,
-        //             "OR" // PADDED DUMMY, REPLACE WITH ACTUAL DESTINATION
-        //           )
-        //         )
-        //       },
-        //       {
-        //         headers: {
-        //           Authorization: "Bearer " + token,
-        //           "Content-Type": "application/json"
-        //         },
-        //         emulateJSON: true
-        //       }
-        //     );
-        //     setTimeout(1000);
-        //     queryResponse.forEach(origin => {
-        //       if (
-        //         aggregatedResponse.event.origin_subzone ===
-        //         origin.event.origin_subzone
-        //       ) {
-        //         aggregatedResponse.event.hyperUnique_unique_agents +=
-        //           origin.event.hyperUnique_unique_agents;
-        //       }
-        //     });
-        //   }
+        var promises = [];
+        for (let destination of destinations) {
+          for (var i = 1; i <= prevDate.getDate(); i++) {
+            var response = queryResponse(i, destination);
+            aggregatedResponses[destination].promises.push(response);
+          }
+        }
 
-
+        /**
+         * Pre-condition: No useless NA data
+         * Post-condition: aggregatedResponse is fully stocked with statistics
+         * for the previous month
+         */
+        for (let destination of destinations) {
+          Promise.all(aggregatedResponses[destination].promises).then(function(
+            responses
+          ) {
+            for (let response of responses) {
+              for (let origin of response.body) {
+                if (
+                  typeof aggregatedResponses[destination].origin_subzones[
+                    origin.event.origin_subzone
+                    ] === "undefined"
+                ) {
+                  aggregatedResponses[destination].origin_subzones[
+                    origin.event.origin_subzone
+                    ] = new origin_subzone_constructor(
+                    origin.event.origin_subzone,
+                    origin.event.hyperUnique_unique_agents,
+                    "" // PADDED DUMMY, REPLACE WITH ACTUAL NAME OF ORIGIN SUBZONE WHEN AVAIL
+                  );
+                } else {
+                  aggregatedResponses[destination].origin_subzones[
+                    origin.event.origin_subzone
+                    ].unique_agents +=
+                    origin.event.hyperUnique_unique_agents;
+                }
+              }
+            }
+            console.log(aggregatedResponses[destination]);
+          });
+        }
       }
     }
-  }
+  };
 </script>
 
 <style>
@@ -606,19 +804,20 @@
     flex: 1;
     /* overflow: auto; */
     /* top: 55px;
-    right: 0;
-    left: 300px;
-    bottom: 0; */
+      right: 0;
+      left: 300px;
+      bottom: 0; */
     /* padding-left: 8px; */
     /* border-left: 1px solid #ccc; */
   }
   .legend {
-    line-height: 18px;
+    vertical-align: top;
+    line-height: 20px;
     color: #555;
   }
   .legend i {
     vertical-align: top;
-    width: 30px;
+    width: 18px;
     height: 18px;
     float: left;
     margin-right: 8px;
@@ -626,7 +825,7 @@
   }
   .info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    /* font: 14px/16px Arial, Helvetica, sans-serif; */
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
