@@ -42,7 +42,7 @@
             </li>
             <li class="nav-item">
               <h5>Customer Coverage</h5>
-              <switches v-on:input="customerCoverage" v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
+              <switches v-on:input="coverageHandler" v-model="coverageEnabled" theme="bootstrap" color="primary"></switches>
               Display on Map
             </li>
 
@@ -114,7 +114,7 @@
         }
       );
       this.markers = L.layerGroup();
-
+      this.newSubZones = L.layerGroup();
       this.map = L.map("map", {
         center: [1.3521, 103.8198],
         zoom: 12,
@@ -557,10 +557,37 @@
       },
       coverageHandler: function(toggled) {
         if (toggled) {
-          customerCoverage();
+          this.dummy();
+          // customerCoverage();
         } else {
-
+          this.map.removeLayer(this.newSubZones);
         }
+      },
+      dummy: function () {
+        // var destinations = [];
+        var markers = this.markers.getLayers();
+        for (let marker of markers) {
+          var subzones = L.geoJson(subZones);
+          var latlng = marker.getLatLng();
+          var subzone = leafletPip.pointInLayer(
+            [latlng.lng, latlng.lat],
+            subzones,
+            true
+          );
+          var coloredSubZone = L.geoJson(subZones, {
+            style: function(feature) {
+                              console.log(feature)
+                console.log(subzone[0])
+              if (feature == subzone[0].feature) {
+                return {fillColor: '#33CC33', fillOpacity: 0.5, opacity: 0};
+              } else {
+                return { fillOpacity: 0, opacity: 0};
+              }
+            }
+          })
+          this.newSubZones.addLayer(coloredSubZone);
+        }
+        this.newSubZones.addTo(this.map);
       },
       customerCoverage: function() {
         /**
