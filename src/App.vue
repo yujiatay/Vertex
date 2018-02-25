@@ -32,6 +32,9 @@
               <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="malay">Malay</p-check>
               <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="indian">Indian</p-check>
               <p-check v-on:change="activateTarget" class="p-default p-smooth" color="primary" v-model="eurasian">Eurasian</p-check>
+              <br/>
+              <switches v-on:input="targetHandler" v-model="targetEnabled" theme="bootstrap" color="primary"></switches>
+              Display on Map
             </li>
             <li class="nav-item">
               <h5>Shop Selector</h5>
@@ -96,6 +99,7 @@ export default {
       malay: false,
       indian: false,
       eurasian: false,
+      targetEnabled: false,
       profileEnabled: false,
       coverageEnabled: false
     };
@@ -265,6 +269,46 @@ export default {
           "<i>Unit for numbers is unique visitors per day</i> <br/>";
       }
     };
+    this.targetLegend = L.control({ position: "bottomright" });
+    this.targetLegend.getColor = function (d) {
+                                    return d > 5000 ? '#800026' :
+                                           d > 4000 ? '#BD0026' :
+                                           d > 3000 ? '#E31A1C' :
+                                           d > 2000 ? '#FC4E2A' :
+                                           d > 1000  ? '#FD8D3C' :
+                                           d > 500   ? '#FEB24C' :
+                                           d > 40    ? '#FFEDA0' :
+                                                       '#ffffff'
+                                  }
+    this.targetLegend.onAdd = function(map) {
+        this._div = L.DomUtil.create('div', 'info legend');
+        var grades = [40, 500, 1000, 2000, 3000, 4000, 5000];
+        var labels = [];
+        function reduceNum(num){
+          if(num >= 1000){
+            return num/1000 + 'k'
+          } else {
+            return num;
+          }
+        }
+      // loop through our density intervals and generate a label with a colored square for each interval
+      for (var i = 0; i < grades.length; i++) {
+        this._div.innerHTML +=
+          '<i style="background:' +
+          this.getColor(grades[i] + 1) +
+          '"></i> ' +
+          reduceNum(grades[i]) +
+          (grades[i + 1]
+            ? "&ndash;" + reduceNum(grades[i + 1]) + "<br>"
+            : "+");
+      }
+      return this._div;
+    };
+    this.targetLegend.onRemove = function(map){
+      this._div.remove();
+    }
+
+    // legend.addTo(self.map);
   },
   methods: {
     profileHandler(value) {
@@ -314,21 +358,25 @@ export default {
         profileDeactivated();
       }
     },
+    targetHandler(value) {
+      var self = this;
+      if(value) {
+        self.targetLegend.addTo(self.map)
+        self.activateTarget(0)
+      } else {
+        console.log("removing targetLayer")
+        self.targetLegend.remove();
+        self.map.removeLayer(self.targetLayer)
+      }
+    },
     activateTarget(dummy) {
+      if(!this.targetEnabled) { return; }
+
       var self = this;
       var processedAgeRange = self.ageRange.value.map(processAgeRange);
       var uniqueByAge = [0, 0, 0, 0, 0, 0, 0, 0]; //8-values
 
-      function getColor(d) {
-        return d > 5000 ? '#800026' :
-               d > 4000 ? '#BD0026' :
-               d > 3000 ? '#E31A1C' :
-               d > 2000 ? '#FC4E2A' :
-               d > 1000  ? '#FD8D3C' :
-               d > 500   ? '#FEB24C' :
-               d > 40    ? '#FFEDA0' :
-                           '#ffffff'
-      }
+
 
       // Return corresponding ageGroup code from age range string
       function processAgeRange(ageStr) {
@@ -415,51 +463,18 @@ export default {
         if(feature.id in historicalData){
           resetUnique()
           sum = process(historicalData[feature.id])
-          console.log(feature.id)
-          console.log(sum)
+          console.log(feature.id + ": " + sum)
         }
         return {
-          fillColor: getColor(sum),
+          fillColor: self.targetLegend.getColor(sum),
           weight: 1,
           opacity: 1,
           color: "#909eb5",
-          fillOpacity: 0.7
+          fillOpacity: 0.5
         };
       }
-
-      L.geoJSON(subZones, { style: style }).addTo(self.map);
-
-      var legend = L.control({ position: "bottomright" });
-
-      legend.onAdd = function(map) {
-          var div = L.DomUtil.create('div', 'info legend'),
-              grades = [40, 500, 1000, 2000, 3000, 4000, 5000],
-              labels = [];
-
-          function reduceNum(num){
-            if(num >= 1000){
-              return num/1000 + 'k'
-            } else {
-              return num;
-            }
-          }
-
-        // loop through our density intervals and generate a label with a colored square for each interval
-        for (var i = 0; i < grades.length; i++) {
-          div.innerHTML +=
-            '<i style="background:' +
-            getColor(grades[i] + 1) +
-            '"></i> ' +
-            reduceNum(grades[i]) +
-            (grades[i + 1]
-              ? "&ndash;" + reduceNum(grades[i + 1]) + "<br>"
-              : "+");
-        }
-
-        return div;
-      };
-
-      legend.addTo(self.map);
+      if(self.targetLayer != undefined) { self.map.removeLayer(self.targetLayer);}
+      self.targetLayer = L.geoJSON(subZones, { style: style }).addTo(self.map);
     },
     addShop() {
       console.log("listen to click");
