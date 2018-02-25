@@ -14,7 +14,7 @@
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <h5>Customer Profile</h5>
+              <h5>Market Profile</h5>
               <switches v-on:input="profileHandler" v-model="profileEnabled" theme="bootstrap" color="primary"></switches>
               Display on Map
             </li>
@@ -62,7 +62,7 @@
   import vueSlider from "vue-slider-component";
   import Switches from "vue-switches";
   import subZones from "./assets/subzones.json";
-  import staycount from "./assets/processedStayCount";
+  import profileData from "./assets/processedProfileData";
   import historicalData from "./assets/historicalData.json"
 
   export default {
@@ -140,7 +140,7 @@
       }
 
       function getStats(subzoneID) {
-        var rawSubzoneStats = staycount[subzoneID];
+        var rawSubzoneStats = profileData[subzoneID];
         console.log(rawSubzoneStats);
         var result = {};
         var sum = 0;
@@ -203,10 +203,10 @@
             timeName = "12am";
           } else if (timeIndex <= 11) {
             timeName = timeIndex + "am";
-          } else if (timeIndex = 12) {
+          } else if (timeIndex === 12) {
             timeName = timeIndex + "pm";
           } else {
-            timeName = timeIndex + "pm";
+            timeName = timeIndex - 12 + "pm";
           }
           result[timeName] = obj.value;
           return result;
@@ -245,8 +245,9 @@
           this._div.innerHTML = '<h4>Subzone Data</h4>' +
             '<b>' + subzoneName + '</b><br />' + '<b>Daily Average:</b> ' + stats.average + '<br />' +
             '<b>Peak Day:</b> ' + stats.bestDay + '<br />' +
+          '<i>Unit for numbers is unique visitors per day</i> <br/>' +
             '<b>Peak Hours:</b> ' + stats.bestHour + '<br />' +
-            '<i>Unit for numbers is unique visitors per day</i> <br/>';
+            '<i>Unit for numbers is unique visitors per hour</i> <br/>';
         }
       };
 
