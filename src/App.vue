@@ -339,6 +339,17 @@
                     d > 40 ? '#FFEDA0' :
                       '#ffffff'
       }
+      this.coverageLegend = L.control({position: "bottomleft"});
+      this.coverageLegend.getColor = function (d) {
+        return d > 5000 ? '#008026' :
+          d > 4000 ? '#00BD26' :
+            d > 3000 ? '#1AE31C' :
+              d > 2000 ? '#4EFC2A' :
+                d > 1000 ? '#8DFD3C' :
+                  d > 500 ? '#B2FE3D' :
+                    d > 40 ? '#AAFFA0' :
+                      '#ffffff'
+      }
       this.targetLegend.onAdd = function (map) {
         this._div = L.DomUtil.create('div', 'info legend');
         var grades = [40, 500, 1000, 2000, 3000, 4000, 5000];
@@ -539,7 +550,7 @@
             weight: 1,
             opacity: 1,
             color: "#909eb5",
-            fillOpacity: 0.5
+            fillOpacity: 0.3
           };
         }
         if(self.targetLayer != undefined) { self.map.removeLayer(self.targetLayer);}
@@ -556,11 +567,13 @@
         });
       },
       coverageHandler: function(toggled) {
+        var self = this;
         if (toggled) {
           this.dummy();
-          // customerCoverage();
+          this.customerCoverage();
         } else {
-          this.map.removeLayer(this.newSubZones);
+          if(self.subzoneOD != undefined) { self.map.removeLayer(self.subzoneOD);}
+          if(self.coloredSubZone != undefined) { self.newSubZones.removeLayer(self.coloredSubZone);}
         }
       },
       dummy: function () {
@@ -574,10 +587,10 @@
             subzones,
             true
           );
-          var coloredSubZone = L.geoJson(subZones, {
+          this.coloredSubZone = L.geoJson(subZones, {
             style: function(feature) {
-                              console.log(feature)
-                console.log(subzone[0])
+              console.log(feature)
+              console.log(subzone[0])
               if (feature == subzone[0].feature) {
                 return {fillColor: '#33CC33', fillOpacity: 0.5, opacity: 0};
               } else {
@@ -585,7 +598,7 @@
               }
             }
           })
-          this.newSubZones.addLayer(coloredSubZone);
+          this.newSubZones.addLayer(this.coloredSubZone);
         }
         this.newSubZones.addTo(this.map);
       },
@@ -615,7 +628,7 @@
         var keySecret = encodeURI(consumerKey + ":" + consumerSecret);
         var consumerKeySecretB64 = btoa(decodeURI(keySecret));
 
-        var token = "4d10fa99-6da1-357a-8bbb-82c3b00aeaa0";
+        var token = "f852cac6-2edc-3264-935b-946c4cda9489";
         //   var tokenResponse = $.ajax({
         //     type: "POST",
         //     url: "https://apistore.datasparkanalytics.com:443/token",
@@ -716,10 +729,10 @@
             "https://apistore.datasparkanalytics.com:443/odmatrix/v3/query",
             JSON.stringify(
               queryBody(
+
                 prevDate.getFullYear() +
                 "-" +
                 prevDate.getMonth() +
-                1 +
                 "-" +
                 day,
                 "destination_subzone",
@@ -743,7 +756,7 @@
           this.origin_subzones = {};
           this.destination_subzone = destination;
           this.month = prevDate.getMonth();
-          this.promises = [];
+          //this.promises = [];
           this.numDays = samplingDates.length;
         }
 
@@ -759,18 +772,19 @@
          * Constructs aggregatedResponses hash object for storing multiple
          * aggregatedResponses.
          */
-        var aggregatedResponses = {};
-        for (let destination of destinations) {
-          aggregatedResponses[destination] = new aggregated_response(destination);
-        }
+        var aggregatedResponses = {origin_subzones: {}};
 
         // Query API for all the days in the previous month
-        var promises = [];
+        var destinationPromises = [];
+        var index_counter = 0;
         for (let destination of destinations) {
+          var promises = [];
           for (var i = 1; i <= prevDate.getDate(); i++) {
             var response = queryResponse(i, destination);
-            aggregatedResponses[destination].promises.push(response);
+            promises.push(response);
           }
+          destinationPromises.push(Promise.all(promises));
+          index_counter++
         }
 
         /**
@@ -778,35 +792,45 @@
          * Post-condition: aggregatedResponse is fully stocked with statistics
          * for the previous month
          */
-        for (let destination of destinations) {
-          Promise.all(aggregatedResponses[destination].promises).then(function(
-            responses
-          ) {
+        Promise.all(destinationPromises).then(function(destArray) {
+          for (let responses of destArray) {
             for (let response of responses) {
               for (let origin of response.body) {
-                if (
-                  typeof aggregatedResponses[destination].origin_subzones[
-                    origin.event.origin_subzone
-                    ] === "undefined"
-                ) {
-                  aggregatedResponses[destination].origin_subzones[
-                    origin.event.origin_subzone
-                    ] = new origin_subzone_constructor(
-                    origin.event.origin_subzone,
-                    origin.event.hyperUnique_unique_agents,
-                    "" // PADDED DUMMY, REPLACE WITH ACTUAL NAME OF ORIGIN SUBZONE WHEN AVAIL
-                  );
+                if (!aggregatedResponses.origin_subzones.hasOwnProperty(origin.event.origin_subzone)) {
+                  aggregatedResponses.origin_subzones[origin.event.origin_subzone] =
+                    {
+                      unique_agents: origin.event.hyperUnique_unique_agents
+                    };
                 } else {
-                  aggregatedResponses[destination].origin_subzones[
+                  aggregatedResponses.origin_subzones[
                     origin.event.origin_subzone
                     ].unique_agents +=
                     origin.event.hyperUnique_unique_agents;
                 }
               }
             }
-            console.log(aggregatedResponses[destination]);
-          });
-        }
+            console.log(aggregatedResponses.origin_subzones);
+          }
+          return aggregatedResponses.origin_subzones;
+        }).then(function(aggregatedSubzones) {
+          function style(feature) {
+            if (aggregatedSubzones.hasOwnProperty(feature.id)) {
+              var color = self.coverageLegend.getColor(aggregatedSubzones[feature.id].unique_agents);
+            } else {
+              var color = "#FFFFFF";
+            }
+            return {
+              fillColor: color,
+              weight: 1,
+              opacity: 1,
+              color: "#909eb5",
+              fillOpacity: 0.5
+            };
+          }
+          if(self.subzoneOD != undefined) { self.map.removeLayer(self.subzoneOD);}
+          console.log("Adding to MAP");
+          self.subzoneOD = L.geoJSON(subZones, { style: style }).addTo(self.map);
+        });
       }
     }
   };
@@ -865,9 +889,9 @@
   }
 
   h5 {
-      border-bottom: 1px solid #ccc;
-      margin-bottom: 0.5em;
-      margin-top: 0.5em;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
   }
 
   #name {
